@@ -1,0 +1,209 @@
+.playground {
+  margin-top: 1rem;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.examples {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.examples span {
+  color: var(--ifm-color-emphasis-600);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.examples button {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ifm-button-border-radius);
+  background: var(--ifm-background-surface-color);
+  color: var(--ifm-color-content);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.85rem;
+}
+
+.examples button:hover {
+  background: var(--ifm-color-emphasis-100);
+  border-color: var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
+}
+
+.runButton {
+  padding: 0.6rem 1.5rem;
+  border: none;
+  border-radius: var(--ifm-button-border-radius);
+  background: var(--ifm-color-primary);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1rem;
+}
+
+.runButton:hover {
+  background: var(--ifm-color-primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(240, 107, 20, 0.3);
+}
+
+.runButton:active {
+  transform: translateY(0);
+}
+
+.editorPanels {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 996px) {
+  .editorPanels {
+    grid-template-columns: 1fr;
+  }
+}
+
+.outputPanel {
+  background: var(--ifm-background-surface-color);
+  border-radius: var(--ifm-code-border-radius);
+  overflow: hidden;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  margin-bottom: 1rem;
+}
+
+.panel {
+  background: var(--ifm-background-surface-color);
+  border-radius: var(--ifm-code-border-radius);
+  overflow: hidden;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  display: flex;
+  flex-direction: column;
+}
+
+.panelHeader {
+  padding: 0.75rem 1rem;
+  background: var(--ifm-color-emphasis-100);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--ifm-color-content);
+  font-size: 0.9rem;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.editorWrapper {
+  flex: 1;
+  min-height: 350px;
+  background: var(--ifm-pre-background);
+  overflow: auto;
+}
+
+.editor {
+  min-height: 350px !important;
+  line-height: 1.6 !important;
+}
+
+.editor textarea,
+.editor pre {
+  padding: 16px !important;
+  font-family: var(--ifm-font-family-monospace) !important;
+  font-size: var(--ifm-code-font-size) !important;
+  line-height: 1.6 !important;
+}
+
+.editor textarea {
+  outline: none !important;
+}
+
+.editor pre {
+  margin: 0 !important;
+  background: transparent !important;
+}
+
+.codeOutput {
+  flex: 1;
+  min-height: 350px;
+  padding: 1rem;
+  margin: 0;
+  background: var(--ifm-pre-background);
+  color: var(--ifm-pre-color);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: var(--ifm-code-font-size);
+  line-height: 1.6;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.console {
+  min-height: 150px;
+  max-height: 300px;
+  padding: 1rem;
+  background: var(--ifm-pre-background);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: var(--ifm-code-font-size);
+  line-height: 1.6;
+  overflow: auto;
+}
+
+.logLine {
+  color: #4ade80;
+  padding: 0.15rem 0;
+}
+
+.logLine::before {
+  content: '› ';
+  color: var(--ifm-color-emphasis-500);
+}
+
+.error {
+  color: #f87171;
+  padding: 0.5rem;
+  background: rgba(248, 113, 113, 0.1);
+  border-radius: var(--ifm-code-border-radius);
+}
+
+.transpileError {
+  color: #fbbf24;
+}
+
+.placeholder {
+  color: var(--ifm-color-emphasis-500);
+  font-style: italic;
+}
+
+.tip {
+  padding: 1rem;
+  background: var(--ifm-color-emphasis-100);
+  border-radius: var(--ifm-code-border-radius);
+  border-left: 4px solid var(--ifm-color-primary);
+  color: var(--ifm-color-content);
+}
+
+.tip code {
+  background: var(--ifm-code-background);
+  padding: 0.2rem 0.4rem;
+  border-radius: var(--ifm-code-border-radius);
+  color: var(--ifm-color-primary);
+  font-size: 0.9em;
+}

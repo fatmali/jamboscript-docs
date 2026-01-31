@@ -1,0 +1,22 @@
+{
+  "sidebar.tutorialSidebar.category.Basics": {
+    "message": "Misingi",
+    "description": "The label for category 'Basics' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Reference": {
+    "message": "Rejea",
+    "description": "The label for category 'Reference' in sidebar 'tutorialSidebar'"
+  },
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.tutorialSidebar.category.Basics.link.generated-index.description": {
+    "message": "Learn the fundamentals of JamboScript - variables, functions, conditionals, and loops.",
+    "description": "The generated-index page description for category 'Basics' in sidebar 'tutorialSidebar'"
+  },
+  "sidebar.tutorialSidebar.category.Reference.link.generated-index.description": {
+    "message": "Complete reference documentation for JamboScript keywords and syntax.",
+    "description": "The generated-index page description for category 'Reference' in sidebar 'tutorialSidebar'"
+  }
+}

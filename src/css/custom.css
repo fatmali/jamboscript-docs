@@ -1,0 +1,43 @@
+:root {
+  --ifm-color-primary: #f06b14;
+  --ifm-color-primary-dark: #e85d04;
+  --ifm-color-primary-darker: #d15403;
+  --ifm-color-primary-darkest: #a24103;
+  --ifm-color-primary-light: #f27624;
+  --ifm-color-primary-lighter: #f58d47;
+  --ifm-color-primary-lightest: #f8a66f;
+  --ifm-font-family-base: system-ui, -apple-system, sans-serif;
+}
+
+/* Dark mode colors */
+[data-theme='dark'] {
+  --ifm-color-primary: #f58d47;
+  --ifm-color-primary-dark: #f27624;
+  --ifm-color-primary-darker: #f06b14;
+  --ifm-color-primary-darkest: #e85d04;
+  --ifm-color-primary-light: #f8a66f;
+  --ifm-color-primary-lighter: #fabe97;
+  --ifm-color-primary-lightest: #fcd6bf;
+  --ifm-background-color: #1b1b1d;
+}
+
+/* Active menu link */
+.menu__link--active {
+  color: var(--ifm-color-primary);
+  font-weight: 600;
+}
+
+/* Navbar title */
+.navbar__title {
+  font-weight: 700;
+}
+
+/* Footer link styling */
+.footer__copyright a {
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+.footer__copyright a:hover {
+  text-decoration: underline;
+}

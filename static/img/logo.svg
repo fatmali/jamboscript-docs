@@ -1,0 +1,30 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Gradient definitions -->
+  <defs>
+    <linearGradient id="sunGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6B35"/>
+      <stop offset="100%" style="stop-color:#F7931E"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Main circle - warm sunset orange -->
+  <circle cx="100" cy="100" r="90" fill="url(#sunGradient)"/>
+  
+  <!-- Inner decorative ring -->
+  <circle cx="100" cy="100" r="80" fill="none" stroke="#FFF5E6" stroke-width="2" opacity="0.5"/>
+  
+  <!-- JS letters - bold and clean -->
+  <text x="100" y="118" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="900" fill="white" text-anchor="middle">JS</text>
+  
+  <!-- African-inspired zigzag pattern - top -->
+  <path d="M40 35 L50 45 L60 35 L70 45 L80 35 L90 45 L100 35 L110 45 L120 35 L130 45 L140 35 L150 45 L160 35" 
+        stroke="#FFF5E6" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- African-inspired zigzag pattern - bottom -->
+  <path d="M40 165 L50 155 L60 165 L70 155 L80 165 L90 155 L100 165 L110 155 L120 165 L130 155 L140 165 L150 155 L160 165" 
+        stroke="#FFF5E6" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Side accents - diamond shapes -->
+  <path d="M20 100 L30 90 L40 100 L30 110 Z" fill="#FFF5E6" opacity="0.8"/>
+  <path d="M160 100 L170 90 L180 100 L170 110 Z" fill="#FFF5E6" opacity="0.8"/>
+</svg>
