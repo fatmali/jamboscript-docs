@@ -8,7 +8,7 @@ const config: Config = {
   favicon: 'img/favicon.ico',
 
   url: 'https://fatmali.github.io',
-  baseUrl: '/',
+  baseUrl: '/jamboscript/',
 
   organizationName: 'fatmali',
   projectName: 'jamboscript-docs',
