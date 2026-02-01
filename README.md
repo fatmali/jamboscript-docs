@@ -75,20 +75,6 @@ jamboscript-docs/
 └── docusaurus.config.ts # Site configuration
 ```
 
-## Customization
-
-### Updating for Your GitHub Username
-
-1. Edit `docusaurus.config.ts`:
-   - Change `url` to your GitHub Pages URL
-   - Change `organizationName` to your GitHub username
-   - Update `editUrl` links to your repository
-
-2. Deploy:
-   ```bash
-   GIT_USER=<your-github-username> npm run deploy
-   ```
-
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -96,7 +82,3 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 Apache License 2.0 - see [LICENSE](LICENSE) for details.
-
----
-
-Built with ❤️ using [Docusaurus](https://docusaurus.io/).
