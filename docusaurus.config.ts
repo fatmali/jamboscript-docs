@@ -7,8 +7,8 @@ const config: Config = {
   tagline: 'A Swahili-based programming language',
   favicon: 'img/favicon.ico',
 
-  url: 'https://fatmali.github.io',
-  baseUrl: '/jamboscript/',
+  url: 'https://jamboscript.org',
+  baseUrl: '/',
 
   organizationName: 'fatmali',
   projectName: 'jamboscript-docs',
