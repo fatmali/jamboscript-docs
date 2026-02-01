@@ -2,7 +2,7 @@
 
 The official documentation site for **JamboScript** - a Swahili-based programming language.
 
-🌐 **Live Site:** [https://yourusername.github.io/jamboscript-docs/](https://yourusername.github.io/jamboscript-docs/)
+[Official Docs](https://jamboscript.org/)
 
 ## About JamboScript
 
