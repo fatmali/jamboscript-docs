@@ -1,84 +1,40 @@
-# JamboScript Documentation 🦁
+# JamboScript 🌍
 
-The official documentation site for **JamboScript** - a Swahili-based programming language.
+**JamboScript** is an interactive, story-driven platform for learning programming in Swahili. Players follow characters like Kito and Mzee Byte through adventures while writing real code using Swahili keywords — making coding accessible and fun for Swahili speakers.
 
-[Official Docs](https://jamboscript.org/)
+## ✨ Features
 
-## About JamboScript
+- 🗣️ **Swahili-first programming** — keywords like `andika`, `acha`, `kama`, `rudia`, `kazi`
+- 📖 **Story-driven curriculum** — 5 chapters with characters, puzzles, and progressive challenges
+- 🌐 **Bilingual UI** — full English and Swahili support via next-intl
+- 🎮 **Interactive code editor** — write, run, and validate JamboScript in the browser
+- ⭐ **Star & hint system** — gamified learning with rewards
+- 🎨 **Beautiful scenes** — village, forest, bridge, and mountain environments
 
-JamboScript makes programming accessible to Swahili speakers by using familiar Swahili keywords. It transpiles to JavaScript, making it perfect for learning programming concepts.
+## 🛠️ Tech Stack
 
-```javascript
-# Hello World in JamboScript
-kazi salamu(jina) {
-  andika("Jambo " + jina + "!")
-}
+- [Next.js](https://nextjs.org) (App Router)
+- [React](https://react.dev) 19
+- [TypeScript](https://www.typescriptlang.org)
+- [Tailwind CSS](https://tailwindcss.com) v4
+- [next-intl](https://next-intl-docs.vercel.app) for i18n
+- [Zustand](https://zustand-demo.pmnd.rs) for state management
+- [Framer Motion](https://www.framer.com/motion) for animations
+- [Monaco Editor](https://microsoft.github.io/monaco-editor) for the code editor
 
-salamu("Dunia")  // Output: Jambo Dunia!
-```
-
-## Development
-
-### Prerequisites
-
-- Node.js 18+
-- npm
-
-### Installation
+## 🚀 Getting Started
 
 ```bash
 npm install
+npm run dev
 ```
 
-### Local Development
+Open [http://localhost:3000](http://localhost:3000) to start the adventure.
 
-```bash
-npm start
-```
+## 👩‍💻 Authors
 
-This starts a local development server at `http://localhost:3000/`.
+Made with ❤️ by **Fatma** and **Claude Code**
 
-### Build
+## 📄 License
 
-```bash
-npm run build
-```
-
-Generates static content into the `build` directory.
-
-### Deploy to GitHub Pages
-
-```bash
-npm run deploy
-```
-
-## Project Structure
-
-```
-jamboscript-docs/
-├── docs/                 # Documentation pages
-│   ├── intro.md         # Getting started
-│   ├── basics/          # Language basics
-│   │   ├── variables.md
-│   │   ├── functions.md
-│   │   ├── conditionals.md
-│   │   └── loops.md
-│   ├── reference/       # Language reference
-│   │   └── keywords.md
-│   └── examples.md      # Code examples
-├── src/
-│   ├── css/
-│   │   └── custom.css   # Custom styling
-│   └── pages/
-│       └── index.tsx    # Homepage
-├── static/              # Static assets
-└── docusaurus.config.ts # Site configuration
-```
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-Apache License 2.0 - see [LICENSE](LICENSE) for details.
+This project is private.
