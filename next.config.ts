@@ -3,7 +3,7 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const nextConfig: NextConfig = {
   output: "export",
-  basePath: "/jamboscript-docs",
+  basePath: "",
   images: {
     unoptimized: true,
   },

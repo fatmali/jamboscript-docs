@@ -7,7 +7,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "deploy": "npm run build && cd out && touch .nojekyll && git init && git checkout -b gh-pages && git add -A && git commit -m 'Deploy' && git remote add origin https://github.com/fatmali/jamboscript-docs.git && git push origin gh-pages --force && cd .."
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
