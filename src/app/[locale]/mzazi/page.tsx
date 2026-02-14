@@ -90,6 +90,18 @@ export default function ParentPage() {
                 </a>
               </p>
             </section>
+
+            {/* Privacy Policy Link */}
+            <section className="bg-secondary/10 border border-secondary/20 rounded-xl p-6">
+              <Link
+                href="/mzazi/faragha"
+                className="flex items-center gap-3 text-secondary hover:text-secondary/80 transition-colors font-semibold"
+              >
+                <span className="text-2xl">🔒</span>
+                <span>{t('privacyLink')}</span>
+                <span className="ml-auto">→</span>
+              </Link>
+            </section>
           </div>
 
           {/* CTA */}

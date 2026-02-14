@@ -1,12 +1,15 @@
 'use client';
 
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChapterData, Dialogue } from '@/lib/types';
-import { useGameStore } from '@/lib/store';
+import { useGameStore, useStoreHydrated } from '@/lib/store';
 import { useTranslations } from 'next-intl';
 import KitoCharacter from '@/components/characters/KitoCharacter';
 import MzeeByteCharacter from '@/components/characters/MzeeByteCharacter';
+import ShidaCharacter from '@/components/characters/ShidaCharacter';
+import NarrationButton from '@/components/ui/NarrationButton';
+import { speak, stop, preloadVoices } from '@/lib/narration';
 
 /** Hook to get the chapter text translator */
 function useChapterText() {
@@ -101,26 +104,20 @@ function highlightJamboLine(line: string): React.ReactNode {
 }
 
 // ─── Chapter-Specific Scene Illustrations ─────────────────────────
-// Each scene visually represents the coding concept and reacts to solved state.
+// Each scene is simplified to ~3-5 animated elements for performance.
+// Bold flat shapes, rounded forms, warm palettes — Blush/Kurzgesagt inspired.
+
+const sceneTransition = { duration: 1.2, ease: [0.22, 1, 0.36, 1] as const };
 
 function GateScene({ solved }: { solved: boolean }) {
   const t = useChapterText();
   return (
-    <svg viewBox="0 0 200 180" className="w-full h-full max-w-[240px]">
-      {/* Sky gradient */}
+    <svg viewBox="0 0 280 160" className="w-full h-full">
       <defs>
         <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#0F172A" />
           <stop offset="100%" stopColor="#1E293B" />
         </linearGradient>
-        <radialGradient id="magicGlow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#FACC15" stopOpacity="0.3" />
-          <stop offset="100%" stopColor="#FACC15" stopOpacity="0" />
-        </radialGradient>
-        <radialGradient id="torchLight" cx="50%" cy="30%" r="60%">
-          <stop offset="0%" stopColor="#FF8F00" stopOpacity="0.6" />
-          <stop offset="100%" stopColor="#FF8F00" stopOpacity="0" />
-        </radialGradient>
         <linearGradient id="doorGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#6D4C41" />
           <stop offset="100%" stopColor="#4E342E" />
@@ -128,228 +125,93 @@ function GateScene({ solved }: { solved: boolean }) {
       </defs>
 
       {/* Sky */}
-      <rect x="0" y="0" width="200" height="180" fill="url(#sky)" />
+      <rect width="280" height="160" fill="url(#sky)" rx="8" />
 
-      {/* Stars twinkling */}
-      {[
-        { x: 15, y: 12, d: 0 }, { x: 45, y: 8, d: 0.4 }, { x: 85, y: 15, d: 0.8 },
-        { x: 130, y: 6, d: 1.2 }, { x: 170, y: 18, d: 0.6 }, { x: 55, y: 22, d: 1.5 },
-      ].map((s, i) => (
-        <motion.circle
-          key={`star-${i}`}
-          cx={s.x} cy={s.y} r="1"
-          fill="white"
-          animate={{ opacity: [0.3, 1, 0.3] }}
-          transition={{ duration: 2 + i * 0.3, delay: s.d, repeat: Infinity }}
-        />
+      {/* Stars — static, clean */}
+      {[20, 55, 100, 165, 210, 250].map((x, i) => (
+        <circle key={i} cx={x} cy={10 + (i % 3) * 8} r="1" fill="white" opacity={0.3 + (i % 3) * 0.2} />
       ))}
 
       {/* Ground */}
-      <rect x="0" y="148" width="200" height="32" fill="#2D1F1F" rx="2" />
-      <rect x="0" y="148" width="200" height="4" fill="#3E2A1E" rx="1" opacity="0.5" />
+      <rect x="0" y="130" width="280" height="30" fill="#2D1F1F" rx="4" />
 
-      {/* Grass tufts */}
-      {[20, 50, 80, 120, 155, 180].map((gx, i) => (
-        <motion.g key={`grass-${i}`} animate={{ rotate: [-2, 2, -2] }} transition={{ duration: 3, delay: i * 0.3, repeat: Infinity }}>
-          <line x1={gx} y1="150" x2={gx - 3} y2="142" stroke="#2E7D32" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
-          <line x1={gx} y1="150" x2={gx + 2} y2="140" stroke="#388E3C" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
-        </motion.g>
+      {/* Stone walls */}
+      <rect x="30" y="35" width="35" height="100" fill="#5C5C5C" rx="4" />
+      <rect x="215" y="35" width="35" height="100" fill="#5C5C5C" rx="4" />
+
+      {/* Stone brick lines */}
+      {[50, 70, 90, 110].map((y, i) => (
+        <g key={i}>
+          <line x1="32" y1={y} x2="63" y2={y} stroke="#4A4A4A" strokeWidth="1" opacity="0.4" />
+          <line x1="217" y1={y} x2="248" y2={y} stroke="#4A4A4A" strokeWidth="1" opacity="0.4" />
+        </g>
       ))}
 
-      {/* Stone wall left */}
-      <rect x="10" y="40" width="30" height="110" fill="#5C5C5C" rx="3" stroke="#4A4A4A" strokeWidth="1" />
-      <rect x="12" y="42" width="26" height="20" fill="#6B6B6B" rx="2" opacity="0.7" />
-      <rect x="12" y="65" width="26" height="20" fill="#555555" rx="2" opacity="0.5" />
-      <rect x="12" y="88" width="26" height="20" fill="#6B6B6B" rx="2" opacity="0.6" />
-      <rect x="12" y="111" width="26" height="20" fill="#555555" rx="2" opacity="0.5" />
+      {/* Torches — simplified: just a warm glow circle + flame */}
+      {[47, 233].map((cx, i) => (
+        <g key={`torch-${i}`}>
+          <rect x={cx - 2} y="55" width="4" height="14" rx="1" fill="#5D4037" />
+          <motion.circle cx={cx} cy="52" r="6" fill="#FF8F00" opacity="0.3"
+            animate={{ r: [5, 7, 5], opacity: [0.2, 0.4, 0.2] }}
+            transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
+          />
+          <ellipse cx={cx} cy="52" rx="2" ry="4" fill="#FFCA28" />
+        </g>
+      ))}
 
-      {/* Stone wall right */}
-      <rect x="160" y="40" width="30" height="110" fill="#5C5C5C" rx="3" stroke="#4A4A4A" strokeWidth="1" />
-      <rect x="162" y="42" width="26" height="20" fill="#6B6B6B" rx="2" opacity="0.7" />
-      <rect x="162" y="65" width="26" height="20" fill="#555555" rx="2" opacity="0.5" />
-      <rect x="162" y="88" width="26" height="20" fill="#6B6B6B" rx="2" opacity="0.6" />
-      <rect x="162" y="111" width="26" height="20" fill="#555555" rx="2" opacity="0.5" />
-
-      {/* Torch left */}
-      <rect x="22" y="55" width="4" height="16" rx="1" fill="#5D4037" />
-      <motion.ellipse cx="24" cy="53" rx="5" ry="7" fill="url(#torchLight)"
-        animate={{ ry: [6, 8, 6], opacity: [0.7, 1, 0.7] }}
-        transition={{ duration: 1.5, repeat: Infinity }}
-      />
-      <motion.ellipse cx="24" cy="52" rx="3" ry="5" fill="#FF6F00"
-        animate={{ ry: [4, 6, 4], rx: [2.5, 3.5, 2.5] }}
-        transition={{ duration: 0.8, repeat: Infinity }}
-      />
-      <motion.ellipse cx="24" cy="51" rx="1.5" ry="3" fill="#FFCA28"
-        animate={{ ry: [2, 3.5, 2] }}
-        transition={{ duration: 0.6, repeat: Infinity }}
-      />
-
-      {/* Torch right */}
-      <rect x="174" y="55" width="4" height="16" rx="1" fill="#5D4037" />
-      <motion.ellipse cx="176" cy="53" rx="5" ry="7" fill="url(#torchLight)"
-        animate={{ ry: [6, 8, 6], opacity: [0.7, 1, 0.7] }}
-        transition={{ duration: 1.5, delay: 0.3, repeat: Infinity }}
-      />
-      <motion.ellipse cx="176" cy="52" rx="3" ry="5" fill="#FF6F00"
-        animate={{ ry: [4, 6, 4], rx: [2.5, 3.5, 2.5] }}
-        transition={{ duration: 0.8, delay: 0.3, repeat: Infinity }}
-      />
-      <motion.ellipse cx="176" cy="51" rx="1.5" ry="3" fill="#FFCA28"
-        animate={{ ry: [2, 3.5, 2] }}
-        transition={{ duration: 0.6, delay: 0.3, repeat: Infinity }}
-      />
-
-      {/* Arch top */}
-      <path d="M 40 60 Q 100 5 160 60" fill="#5C5C5C" stroke="#4A4A4A" strokeWidth="2" />
-      <path d="M 45 60 Q 100 12 155 60" fill="#1E293B" />
+      {/* Arch */}
+      <path d="M65 55 Q140 5 215 55" fill="#5C5C5C" stroke="#4A4A4A" strokeWidth="2" />
+      <path d="M70 55 Q140 12 210 55" fill="url(#sky)" />
 
       {/* Keystone */}
-      <motion.polygon
-        points="95,12 105,12 107,25 93,25"
-        fill="#FACC15"
-        animate={solved ? { fill: '#4ADE80' } : { opacity: [0.6, 1, 0.6] }}
-        transition={solved ? { duration: 0.5 } : { duration: 2, repeat: Infinity }}
-      />
+      <polygon points="135,12 145,12 147,22 133,22" fill={solved ? '#4ADE80' : '#FACC15'} />
 
-      {/* Light behind gate when open */}
+      {/* Light behind gate */}
       {solved && (
-        <motion.rect
-          x="42" y="60" width="116" height="90"
-          fill="#FACC15"
-          rx="3"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: [0, 0.2, 0.12] }}
-          transition={{ duration: 1.2 }}
+        <motion.rect x="68" y="55" width="144" height="78" rx="4" fill="#FACC15"
+          initial={{ opacity: 0 }} animate={{ opacity: 0.15 }} transition={{ duration: 0.8 }}
         />
       )}
 
-      {/* Door - left panel */}
-      <motion.rect
-        y="60" width="56" height="90" rx="3"
+      {/* Doors — the main interactive element */}
+      <motion.rect y="55" width="70" height="78" rx="4"
         fill="url(#doorGrad)" stroke="#3E2723" strokeWidth="2"
-        animate={{ x: solved ? 20 : 42 }}
-        transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
+        animate={{ x: solved ? 30 : 68 }}
+        transition={sceneTransition}
       />
-      {/* Door - right panel */}
-      <motion.rect
-        y="60" width="56" height="90" rx="3"
+      <motion.rect y="55" width="70" height="78" rx="4"
         fill="url(#doorGrad)" stroke="#3E2723" strokeWidth="2"
-        animate={{ x: solved ? 136 : 102 }}
-        transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
+        animate={{ x: solved ? 190 : 142 }}
+        transition={sceneTransition}
       />
 
-      {/* Door wood grain lines */}
-      <motion.g animate={{ x: solved ? -22 : 0 }} transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}>
-        <line x1="55" y1="65" x2="55" y2="145" stroke="#3E2723" strokeWidth="0.5" opacity="0.4" />
-        <line x1="70" y1="65" x2="70" y2="145" stroke="#3E2723" strokeWidth="0.5" opacity="0.3" />
-        <line x1="85" y1="65" x2="85" y2="145" stroke="#3E2723" strokeWidth="0.5" opacity="0.4" />
-      </motion.g>
-      <motion.g animate={{ x: solved ? 34 : 0 }} transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}>
-        <line x1="115" y1="65" x2="115" y2="145" stroke="#3E2723" strokeWidth="0.5" opacity="0.4" />
-        <line x1="130" y1="65" x2="130" y2="145" stroke="#3E2723" strokeWidth="0.5" opacity="0.3" />
-        <line x1="145" y1="65" x2="145" y2="145" stroke="#3E2723" strokeWidth="0.5" opacity="0.4" />
-      </motion.g>
-
-      {/* Door handles (ring style) */}
-      <motion.circle
-        cy="108" r="5" fill="none" stroke="#FFC107" strokeWidth="2"
-        animate={{ cx: solved ? 70 : 92 }}
-        transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
+      {/* Door handles */}
+      <motion.circle cy="96" r="4" fill="none" stroke="#FFC107" strokeWidth="2"
+        animate={{ cx: solved ? 92 : 128 }} transition={sceneTransition}
       />
-      <motion.circle
-        cy="108" r="5" fill="none" stroke="#FFC107" strokeWidth="2"
-        animate={{ cx: solved ? 146 : 108 }}
-        transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
-      />
-      <motion.circle
-        cy="102" r="2" fill="#FFC107"
-        animate={{ cx: solved ? 70 : 92 }}
-        transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
-      />
-      <motion.circle
-        cy="102" r="2" fill="#FFC107"
-        animate={{ cx: solved ? 146 : 108 }}
-        transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
+      <motion.circle cy="96" r="4" fill="none" stroke="#FFC107" strokeWidth="2"
+        animate={{ cx: solved ? 200 : 152 }} transition={sceneTransition}
       />
 
-      {/* Magic glow when locked — pulsing runes */}
-      {!solved && (
-        <>
-          <motion.ellipse
-            cx="100" cy="95" rx="35" ry="45"
-            fill="url(#magicGlow)"
-            animate={{ opacity: [0.3, 0.7, 0.3], ry: [43, 48, 43] }}
-            transition={{ duration: 2.5, repeat: Infinity }}
-          />
-          {/* Floating rune symbols */}
-          {['✦', '⟡', '✧', '⟡', '✦'].map((rune, i) => (
-            <motion.text
-              key={`rune-${i}`}
-              x={65 + i * 18}
-              y={90}
-              fontSize="8"
-              fill="#FACC15"
-              textAnchor="middle"
-              animate={{
-                y: [88 + (i % 2) * 4, 82 + (i % 2) * 4, 88 + (i % 2) * 4],
-                opacity: [0.2, 0.8, 0.2],
-              }}
-              transition={{ duration: 2, delay: i * 0.35, repeat: Infinity }}
-            >
-              {rune}
-            </motion.text>
-          ))}
-        </>
-      )}
-
-      {/* Lock icon */}
-      {!solved && (
-        <motion.g
-          animate={{ scale: [1, 1.05, 1] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <rect x="93" y="100" width="14" height="12" rx="2" fill="#FFC107" />
-          <path d="M 96 100 L 96 94 Q 100 88 104 94 L 104 100" fill="none" stroke="#FFC107" strokeWidth="2.5" strokeLinecap="round" />
-          <circle cx="100" cy="107" r="2" fill="#5D4037" />
+      {/* Lock / success indicator */}
+      {!solved ? (
+        <motion.g animate={{ scale: [1, 1.04, 1] }} transition={{ duration: 2.5, repeat: Infinity }}
+          style={{ transformOrigin: '140px 95px' }}>
+          <rect x="133" y="90" width="14" height="11" rx="2" fill="#FFC107" />
+          <path d="M136 90 L136 85 Q140 79 144 85 L144 90" fill="none" stroke="#FFC107" strokeWidth="2" strokeLinecap="round" />
         </motion.g>
-      )}
-
-      {/* Sparkles burst when opened */}
-      {solved && (
-        <>
-          {[
-            { x: 100, y: 60, d: 0 }, { x: 80, y: 75, d: 0.1 }, { x: 120, y: 70, d: 0.15 },
-            { x: 70, y: 95, d: 0.2 }, { x: 130, y: 90, d: 0.25 }, { x: 90, y: 55, d: 0.3 },
-            { x: 110, y: 50, d: 0.35 }, { x: 75, y: 110, d: 0.4 }, { x: 125, y: 105, d: 0.45 },
-            { x: 100, y: 80, d: 0.05 },
-          ].map((s, i) => (
-            <motion.circle
-              key={`sparkle-${i}`}
-              cx={s.x} cy={s.y} r="2"
-              fill="#FACC15"
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{
-                opacity: [0, 1, 0],
-                scale: [0, 2, 0],
-                y: [s.y, s.y - 25 - (i % 3) * 10],
-              }}
-              transition={{ duration: 1.2, delay: s.d, repeat: 2 }}
-            />
-          ))}
-          {/* Success glow ring */}
-          <motion.circle
-            cx="100" cy="100" r="20"
-            fill="none" stroke="#4ADE80" strokeWidth="2"
-            initial={{ r: 10, opacity: 0.8 }}
-            animate={{ r: 60, opacity: 0 }}
-            transition={{ duration: 1.5, ease: 'easeOut' }}
+      ) : (
+        [0, 1, 2, 3].map(i => (
+          <motion.circle key={i} cx={120 + i * 15} cy={80} r="2" fill="#FACC15"
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 0], y: [0, -15] }}
+            transition={{ duration: 1, delay: i * 0.15, repeat: 2 }}
           />
-        </>
+        ))
       )}
 
       {/* Label */}
-      <text x="100" y="174" textAnchor="middle" fontSize="9" fill="#FACC15" fontWeight="bold" opacity="0.7">
+      <text x="140" y="153" textAnchor="middle" fontSize="9" fill="#FACC15" fontWeight="bold" opacity="0.7">
         {solved ? t('sceneGateOpened') : t('sceneGateLocked')}
       </text>
     </svg>
@@ -359,63 +221,58 @@ function GateScene({ solved }: { solved: boolean }) {
 function GuardScene({ solved }: { solved: boolean }) {
   const t = useChapterText();
   return (
-    <svg viewBox="0 0 200 180" className="w-full h-full max-w-[240px]">
+    <svg viewBox="0 0 280 160" className="w-full h-full">
       {/* Background hut */}
-      <rect x="55" y="70" width="90" height="80" rx="3" fill="#8D6E63" />
-      <polygon points="100,25 40,75 160,75" fill="#5D4037" />
+      <rect x="70" y="55" width="140" height="80" rx="6" fill="#8D6E63" />
+      <polygon points="140,18 50,60 230,60" fill="#5D4037" />
       {/* Window */}
-      <rect x="115" y="90" width="18" height="18" rx="2" fill="#3E2723" />
-      <line x1="124" y1="90" x2="124" y2="108" stroke="#5D4037" strokeWidth="1.5" />
-      <line x1="115" y1="99" x2="133" y2="99" stroke="#5D4037" strokeWidth="1.5" />
-      {/* Guard */}
-      <g transform="translate(80, 85)">
-        {/* Body */}
-        <rect x="5" y="25" width="30" height="40" rx="3" fill="#4527A0" />
+      <rect x="165" y="75" width="22" height="22" rx="3" fill="#3E2723" />
+      <line x1="176" y1="75" x2="176" y2="97" stroke="#5D4037" strokeWidth="1.5" />
+      <line x1="165" y1="86" x2="187" y2="86" stroke="#5D4037" strokeWidth="1.5" />
+
+      {/* Guard — simplified chibi style */}
+      <g transform="translate(110, 70)">
+        <rect x="8" y="25" width="34" height="42" rx="6" fill="#4527A0" />
+        {/* Gold trim */}
+        <rect x="10" y="60" width="30" height="3" rx="1.5" fill="#FFC107" opacity="0.5" />
         {/* Head */}
-        <circle cx="20" cy="18" r="14" fill="#A07D1C" />
-        <circle cx="20" cy="20" r="12" fill="#B8942A" />
+        <circle cx="25" cy="18" r="15" fill="#B8942A" stroke="#8B6914" strokeWidth="1.5" />
         {/* Eyes */}
-        <circle cx="15" cy="17" r="2" fill="white" />
-        <circle cx="25" cy="17" r="2" fill="white" />
-        <circle cx="15.5" cy="17" r="1.2" fill="#1E1B4B" />
-        <circle cx="25.5" cy="17" r="1.2" fill="#1E1B4B" />
+        <circle cx="19" cy="16" r="2.5" fill="white" />
+        <circle cx="31" cy="16" r="2.5" fill="white" />
+        <circle cx="19.5" cy="16" r="1.3" fill="#1E1B4B" />
+        <circle cx="31.5" cy="16" r="1.3" fill="#1E1B4B" />
+        {/* Friendly smile */}
+        <path d="M20,24 Q25,28 30,24" fill="none" stroke="#5D4037" strokeWidth="1.5" strokeLinecap="round" />
         {/* Helmet */}
-        <path d="M 6 14 Q 8 2 20 0 Q 32 2 34 14" fill="#FFC107" />
-        <ellipse cx="20" cy="14" rx="14" ry="3" fill="#FFC107" />
+        <path d="M10 14 Q12 2 25 0 Q38 2 40 14" fill="#FFC107" stroke="#E6A800" strokeWidth="1" />
+        <ellipse cx="25" cy="14" rx="15.5" ry="3.5" fill="#FFC107" />
         {/* Spear */}
-        <line x1="40" y1="5" x2="40" y2="65" stroke="#8B6914" strokeWidth="3" strokeLinecap="round" />
-        <polygon points="40,-2 35,8 45,8" fill="#78909C" />
+        <line x1="48" y1="5" x2="48" y2="65" stroke="#8B6914" strokeWidth="3" strokeLinecap="round" />
+        <polygon points="48,-2 43,8 53,8" fill="#78909C" />
       </g>
-      {/* Question mark or name scroll */}
+
+      {/* Question mark or welcome scroll */}
       <motion.g
-        animate={solved ? { y: 0, opacity: 1 } : { y: [0, -3, 0], opacity: 1 }}
-        transition={solved ? {} : { duration: 2, repeat: Infinity }}
+        animate={solved ? { y: 0 } : { y: [0, -2, 0] }}
+        transition={solved ? {} : { duration: 2.5, repeat: Infinity, ease: [0.37, 0, 0.63, 1] }}
       >
         {solved ? (
-          <g transform="translate(60, 135)">
-            {/* Scroll */}
-            <rect x="0" y="0" width="80" height="24" rx="4" fill="#FFF8E1" stroke="#D7CCC8" strokeWidth="1" />
+          <g transform="translate(80, 125)">
+            <rect x="0" y="0" width="120" height="24" rx="6" fill="#FFF8E1" stroke="#D7CCC8" strokeWidth="1" />
             <circle cx="0" cy="12" r="5" fill="#D7CCC8" />
-            <circle cx="80" cy="12" r="5" fill="#D7CCC8" />
-            <text x="40" y="16" textAnchor="middle" fontSize="9" fill="#3E2723" fontWeight="bold">{t('sceneGuardWelcome')}</text>
+            <circle cx="120" cy="12" r="5" fill="#D7CCC8" />
+            <text x="60" y="16" textAnchor="middle" fontSize="10" fill="#3E2723" fontWeight="bold">{t('sceneGuardWelcome')}</text>
           </g>
         ) : (
-          <g transform="translate(80, 135)">
-            <motion.text
-              x="20" y="16"
-              textAnchor="middle"
-              fontSize="22"
-              fill="#FACC15"
-              animate={{ scale: [1, 1.15, 1] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-            >
-              ❓
-            </motion.text>
-          </g>
+          <text x="140" y="132" textAnchor="middle" fontSize="24" fill="#FACC15">❓</text>
         )}
       </motion.g>
-      {/* Label */}
-      <text x="100" y="174" textAnchor="middle" fontSize="9" fill="#FACC15" fontWeight="bold" opacity="0.7">
+
+      {/* Ground */}
+      <rect x="0" y="135" width="280" height="25" fill="#33691E" rx="4" />
+
+      <text x="140" y="153" textAnchor="middle" fontSize="9" fill="#FACC15" fontWeight="bold" opacity="0.7">
         {solved ? t('sceneGuardSaved') : t('sceneGuardAsking')}
       </text>
     </svg>
@@ -425,87 +282,42 @@ function GuardScene({ solved }: { solved: boolean }) {
 function ForkPathScene({ solved }: { solved: boolean }) {
   const t = useChapterText();
   return (
-    <svg viewBox="0 0 200 180" className="w-full h-full max-w-[240px]">
+    <svg viewBox="0 0 280 160" className="w-full h-full">
       {/* Sky */}
-      <rect x="0" y="0" width="200" height="80" fill="#1A237E" rx="4" />
+      <rect width="280" height="70" fill="#1A237E" rx="8" />
       {/* Stars */}
-      {[0,1,2,3,4,5].map(i => (
-        <motion.circle
-          key={i}
-          cx={20 + i * 32}
-          cy={15 + (i % 3) * 20}
-          r={1 + (i % 2)}
-          fill="white"
-          animate={{ opacity: [0.3, 1, 0.3] }}
-          transition={{ duration: 2 + (i % 2), repeat: Infinity, delay: i * 0.3 }}
-        />
+      {[30, 80, 140, 200, 250].map((x, i) => (
+        <circle key={i} cx={x} cy={10 + (i % 3) * 15} r={1 + (i % 2) * 0.5} fill="white" opacity={0.3 + (i % 3) * 0.2} />
       ))}
       {/* Ground */}
-      <rect x="0" y="80" width="200" height="100" fill="#1B5E20" rx="2" />
-      {/* Main path from bottom */}
-      <rect x="85" y="140" width="30" height="40" fill="#8D6E63" rx="3" />
-      {/* Fork — left path (pango / cave) */}
-      <motion.path
-        d="M 85 140 Q 50 120 20 100"
-        fill="none"
-        stroke={solved ? '#FACC15' : '#8D6E63'}
-        strokeWidth="25"
-        strokeLinecap="round"
-        animate={solved ? { stroke: '#FACC15' } : {}}
-        transition={{ duration: 0.5 }}
+      <rect x="0" y="70" width="280" height="90" fill="#1B5E20" rx="4" />
+      {/* Main path */}
+      <rect x="120" y="120" width="40" height="40" rx="6" fill="#8D6E63" />
+      {/* Fork left */}
+      <motion.path d="M120 120 Q70 100 30 85"
+        fill="none" stroke={solved ? '#FACC15' : '#8D6E63'} strokeWidth="28" strokeLinecap="round"
+        transition={{ duration: 0.6 }}
       />
-      {/* Fork — right path (mto / river) */}
-      <motion.path
-        d="M 115 140 Q 150 120 180 100"
-        fill="none"
-        stroke={solved ? '#FACC15' : '#8D6E63'}
-        strokeWidth="25"
-        strokeLinecap="round"
-        animate={solved ? { stroke: '#FACC15' } : {}}
-        transition={{ duration: 0.5 }}
+      {/* Fork right */}
+      <motion.path d="M160 120 Q210 100 250 85"
+        fill="none" stroke={solved ? '#FACC15' : '#8D6E63'} strokeWidth="28" strokeLinecap="round"
+        transition={{ duration: 0.6 }}
       />
-      {/* Cave icon on left */}
-      <g transform="translate(5, 78)">
-        <path d="M 0 25 Q 15 0 30 25" fill="#3E2723" />
-        <text x="15" y="20" textAnchor="middle" fontSize="12">🕳️</text>
-      </g>
-      {/* River icon on right */}
-      <g transform="translate(165, 78)">
-        <motion.text
-          x="15" y="20"
-          textAnchor="middle"
-          fontSize="14"
-          animate={{ y: [20, 18, 20] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          🏞️
-        </motion.text>
-      </g>
-      {/* Weather indicator */}
-      <motion.g
-        animate={{ y: [0, -2, 0] }}
-        transition={{ duration: 3, repeat: Infinity }}
+      {/* Cave */}
+      <path d="M10 88 Q25 65 40 88" fill="#3E2723" />
+      <text x="25" y="84" textAnchor="middle" fontSize="14">🕳️</text>
+      {/* River */}
+      <text x="255" y="84" textAnchor="middle" fontSize="16">🏞️</text>
+      {/* Weather */}
+      <motion.text x="140" y="28" textAnchor="middle" fontSize="24"
+        animate={{ y: [28, 25, 28] }} transition={{ duration: 3.5, repeat: Infinity, ease: [0.37, 0, 0.63, 1] }}
       >
-        {!solved ? (
-          <text x="100" y="30" textAnchor="middle" fontSize="22">🌧️</text>
-        ) : (
-          <text x="100" y="30" textAnchor="middle" fontSize="22">☀️</text>
-        )}
-      </motion.g>
-      {/* Decision indicator */}
-      <g transform="translate(85, 118)">
-        <motion.text
-          x="15" y="15"
-          textAnchor="middle"
-          fontSize="16"
-          animate={!solved ? { scale: [1, 1.2, 1] } : {}}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        >
-          {solved ? '✅' : '🤔'}
-        </motion.text>
-      </g>
-      {/* Label */}
-      <text x="100" y="174" textAnchor="middle" fontSize="9" fill="#FACC15" fontWeight="bold" opacity="0.7">
+        {solved ? '☀️' : '🌧️'}
+      </motion.text>
+      {/* Decision */}
+      <text x="140" y="115" textAnchor="middle" fontSize="18">{solved ? '✅' : '🤔'}</text>
+
+      <text x="140" y="153" textAnchor="middle" fontSize="9" fill="#FACC15" fontWeight="bold" opacity="0.7">
         {solved ? t('scenePathChosen') : t('scenePathChoose')}
       </text>
     </svg>
@@ -514,85 +326,57 @@ function ForkPathScene({ solved }: { solved: boolean }) {
 
 function BridgeCrossingScene({ solved }: { solved: boolean }) {
   const t = useChapterText();
-  const plankCount = 5;
   return (
-    <svg viewBox="0 0 200 180" className="w-full h-full max-w-[240px]">
+    <svg viewBox="0 0 280 160" className="w-full h-full">
       {/* Sky */}
-      <linearGradient id="sunsetSky" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#FF8A65" />
-        <stop offset="100%" stopColor="#FFF3E0" />
-      </linearGradient>
-      <rect x="0" y="0" width="200" height="80" fill="url(#sunsetSky)" rx="4" />
+      <defs>
+        <linearGradient id="sunsetSky" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#FF8A65" />
+          <stop offset="100%" stopColor="#FFF3E0" />
+        </linearGradient>
+      </defs>
+      <rect width="280" height="70" fill="url(#sunsetSky)" rx="8" />
       {/* Water */}
-      <rect x="0" y="80" width="200" height="100" fill="#1565C0" rx="2" />
-      {/* Water ripples */}
-      {[0,1,2,3].map(i => (
-        <motion.ellipse
-          key={i}
-          cx={30 + i * 50}
-          cy={110 + (i % 2) * 25}
-          rx={15}
-          ry={2}
-          fill="rgba(255,255,255,0.15)"
-          animate={{ rx: [15, 20, 15], opacity: [0.1, 0.25, 0.1] }}
-          transition={{ duration: 2 + i * 0.3, repeat: Infinity }}
+      <rect x="0" y="70" width="280" height="90" fill="#1565C0" rx="4" />
+      {/* Ripples — just 2 */}
+      {[80, 200].map((cx, i) => (
+        <motion.ellipse key={i} cx={cx} cy={105 + i * 15} rx={18} ry={2}
+          fill="white" opacity="0.1"
+          animate={{ rx: [16, 22, 16], opacity: [0.08, 0.18, 0.08] }}
+          transition={{ duration: 3, repeat: Infinity, delay: i * 0.5 }}
         />
       ))}
-      {/* Left bank */}
-      <rect x="0" y="85" width="30" height="95" fill="#5D4037" rx="2" />
-      <rect x="0" y="82" width="35" height="10" fill="#558B2F" rx="3" />
-      {/* Right bank */}
-      <rect x="170" y="85" width="30" height="95" fill="#5D4037" rx="2" />
-      <rect x="165" y="82" width="35" height="10" fill="#558B2F" rx="3" />
+      {/* Banks */}
+      <rect x="0" y="72" width="40" height="88" fill="#5D4037" rx="4" />
+      <rect x="0" y="70" width="48" height="10" fill="#558B2F" rx="4" />
+      <rect x="240" y="72" width="40" height="88" fill="#5D4037" rx="4" />
+      <rect x="232" y="70" width="48" height="10" fill="#558B2F" rx="4" />
       {/* Posts */}
-      <rect x="22" y="65" width="8" height="50" fill="#4E342E" rx="2" />
-      <rect x="170" y="65" width="8" height="50" fill="#4E342E" rx="2" />
-      {/* Top rope */}
-      <path d="M 26 70 Q 100 55 174 70" fill="none" stroke="#6D4C41" strokeWidth="3" strokeLinecap="round" />
-      {/* Bottom rope */}
-      <path d="M 26 100 Q 100 110 174 100" fill="none" stroke="#6D4C41" strokeWidth="3" strokeLinecap="round" />
+      <rect x="30" y="52" width="8" height="45" rx="2" fill="#4E342E" />
+      <rect x="242" y="52" width="8" height="45" rx="2" fill="#4E342E" />
+      {/* Ropes */}
+      <path d="M34 56 Q140 42 246 56" fill="none" stroke="#6D4C41" strokeWidth="3" strokeLinecap="round" />
+      <path d="M34 88 Q140 98 246 88" fill="none" stroke="#6D4C41" strokeWidth="3" strokeLinecap="round" />
       {/* Planks */}
-      {Array.from({ length: plankCount }, (_, i) => {
-        const x = 35 + i * 26;
-        const crossed = solved;
-        return (
-          <motion.rect
-            key={i}
-            x={x}
-            y="92"
-            width="22"
-            height="6"
-            rx="1"
-            fill={crossed ? '#FFC107' : '#8D6E63'}
-            animate={
-              crossed
-                ? { fill: '#FFC107', y: 92 }
-                : { y: [92, 93, 92] }
-            }
-            transition={
-              crossed
-                ? { duration: 0.4, delay: i * 0.2 }
-                : { duration: 2, repeat: Infinity, delay: i * 0.15 }
-            }
-          />
-        );
-      })}
-      {/* Walker figure */}
-      <motion.g
-        animate={solved ? { x: 150 } : { x: 15 }}
-        transition={{ duration: 2, ease: 'easeInOut' }}
-      >
-        <circle cx="20" cy="78" r="5" fill="#FACC15" />
-        <line x1="20" y1="83" x2="20" y2="92" stroke="#FACC15" strokeWidth="2" />
-        <line x1="20" y1="86" x2="15" y2="90" stroke="#FACC15" strokeWidth="1.5" />
-        <line x1="20" y1="86" x2="25" y2="90" stroke="#FACC15" strokeWidth="1.5" />
+      {Array.from({ length: 6 }, (_, i) => (
+        <motion.rect key={i} x={48 + i * 33} y="80" width="26" height="6" rx="2"
+          fill={solved ? '#FFC107' : '#8D6E63'}
+          animate={solved ? {} : { y: [80, 81, 80] }}
+          transition={solved ? { duration: 0.4, delay: i * 0.15 } : { duration: 2.5, repeat: Infinity, delay: i * 0.12 }}
+        />
+      ))}
+      {/* Walker */}
+      <motion.g animate={{ x: solved ? 210 : 20 }} transition={{ duration: 2, ease: 'easeInOut' }}>
+        <circle cx="25" cy="66" r="5" fill="#FACC15" />
+        <line x1="25" y1="71" x2="25" y2="80" stroke="#FACC15" strokeWidth="2" />
+        <line x1="25" y1="74" x2="20" y2="78" stroke="#FACC15" strokeWidth="1.5" />
+        <line x1="25" y1="74" x2="30" y2="78" stroke="#FACC15" strokeWidth="1.5" />
       </motion.g>
-      {/* Step counter */}
-      <text x="100" y="128" textAnchor="middle" fontSize="10" fill="white" fontWeight="bold" opacity="0.8">
+
+      <text x="140" y="120" textAnchor="middle" fontSize="10" fill="white" fontWeight="bold" opacity="0.8">
         {solved ? t('sceneBridgeStepsDone', { count: 5 }) : t('sceneBridgeSteps', { count: 0 })}
       </text>
-      {/* Label */}
-      <text x="100" y="174" textAnchor="middle" fontSize="9" fill="#FACC15" fontWeight="bold" opacity="0.7">
+      <text x="140" y="153" textAnchor="middle" fontSize="9" fill="#FACC15" fontWeight="bold" opacity="0.7">
         {solved ? t('sceneBridgeCrossed') : t('sceneBridgeCross')}
       </text>
     </svg>
@@ -602,75 +386,356 @@ function BridgeCrossingScene({ solved }: { solved: boolean }) {
 function MountainSpellScene({ solved }: { solved: boolean }) {
   const t = useChapterText();
   return (
-    <svg viewBox="0 0 200 180" className="w-full h-full max-w-[240px]">
-      {/* Sky */}
-      <rect x="0" y="0" width="200" height="100" fill="#1A1A2E" rx="4" />
-      {/* Stars */}
-      {[0,1,2,3,4,5,6,7].map(i => (
-        <motion.circle
-          key={i}
-          cx={15 + i * 24}
-          cy={12 + (i % 4) * 18}
-          r={1}
-          fill="white"
-          animate={{ opacity: [0.3, 1, 0.3] }}
-          transition={{ duration: 2, repeat: Infinity, delay: i * 0.25 }}
-        />
+    <svg viewBox="0 0 280 160" className="w-full h-full">
+      <rect width="280" height="90" fill="#1A1A2E" rx="8" />
+      {/* Stars — static */}
+      {[20, 60, 105, 155, 200, 240, 265].map((x, i) => (
+        <circle key={i} cx={x} cy={10 + (i % 3) * 18} r="1" fill="white" opacity={0.3 + (i % 2) * 0.3} />
       ))}
       {/* Mountain */}
-      <polygon points="100,30 30,150 170,150" fill="#4E342E" />
-      <polygon points="100,30 80,60 120,60" fill="#ECEFF1" opacity="0.5" />
+      <polygon points="140,25 45,130 235,130" fill="#4E342E" />
+      <polygon points="140,25 115,50 165,50" fill="#ECEFF1" opacity="0.5" />
       {/* Ground */}
-      <rect x="0" y="145" width="200" height="35" fill="#2E7D32" rx="2" />
-      {/* Spell scroll / function box */}
-      <g transform="translate(65, 80)">
-        <motion.rect
-          x="0" y="0" width="70" height="50" rx="6"
-          fill="#312E81"
-          stroke={solved ? '#FACC15' : '#6366F1'}
-          strokeWidth="2"
-          animate={solved ? { stroke: '#FACC15' } : { stroke: ['#6366F1', '#818CF8', '#6366F1'] }}
-          transition={{ duration: 2, repeat: Infinity }}
+      <rect x="0" y="125" width="280" height="35" fill="#2E7D32" rx="4" />
+
+      {/* Function box */}
+      <g transform="translate(80, 68)">
+        <motion.rect x="0" y="0" width="120" height="50" rx="8"
+          fill="#312E81" stroke={solved ? '#FACC15' : '#6366F1'} strokeWidth="2"
+          animate={solved ? {} : { stroke: ['#6366F1', '#818CF8', '#6366F1'] }}
+          transition={solved ? {} : { duration: 2.5, repeat: Infinity }}
         />
-        {/* Function signature */}
-        <text x="35" y="18" textAnchor="middle" fontSize="7" fill="#FACC15" fontWeight="bold">kazi maraMbili(n)</text>
-        <text x="35" y="30" textAnchor="middle" fontSize="7" fill="#A5B4FC">rudisha n * 2</text>
-        {/* Input arrow */}
-        <motion.g
-          animate={solved ? { opacity: 1 } : { opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        >
-          <text x="35" y="45" textAnchor="middle" fontSize="8" fill={solved ? '#4ADE80' : '#94A3B8'}>
-            {solved ? '7 → 14 ✅' : '7 → ?'}
-          </text>
-        </motion.g>
+        <text x="60" y="18" textAnchor="middle" fontSize="8" fill="#FACC15" fontWeight="bold">kazi ponyaMti()</text>
+        <text x="60" y="30" textAnchor="middle" fontSize="7" fill="#A5B4FC">andika(&quot;...&quot;)</text>
+        <text x="60" y="44" textAnchor="middle" fontSize="9" fill={solved ? '#4ADE80' : '#94A3B8'}>
+          {solved ? '🌳 ✨ ✅' : '🌳 → ?'}
+        </text>
       </g>
-      {/* Magic sparkles when solved */}
-      {solved && (
-        <>
-          {[0,1,2,3,4,5].map(i => (
-            <motion.circle
-              key={i}
-              cx={70 + i * 12}
-              cy={75}
-              r="2"
-              fill="#FACC15"
-              initial={{ opacity: 0, y: 0 }}
-              animate={{ opacity: [0, 1, 0], y: [0, -25], scale: [0.5, 1.5, 0] }}
-              transition={{ duration: 1.2, delay: i * 0.2, repeat: 3 }}
-            />
-          ))}
-        </>
-      )}
-      {/* Label */}
-      <text x="100" y="174" textAnchor="middle" fontSize="9" fill="#FACC15" fontWeight="bold" opacity="0.7">
+
+      {/* Sparkles when solved */}
+      {solved && [0, 1, 2, 3].map(i => (
+        <motion.circle key={i} cx={100 + i * 22} cy={65} r="2" fill="#FACC15"
+          initial={{ opacity: 0 }} animate={{ opacity: [0, 1, 0], y: [0, -18] }}
+          transition={{ duration: 1, delay: i * 0.2, repeat: 2 }}
+        />
+      ))}
+
+      <text x="140" y="153" textAnchor="middle" fontSize="9" fill="#FACC15" fontWeight="bold" opacity="0.7">
         {solved ? t('sceneMountainSuccess') : t('sceneMountainCreate')}
       </text>
     </svg>
   );
 }
 
-/** Picks the correct scene illustration based on chapter scene + concept */
+// ─── Chapter 6: Waterfall Scene (Lists) ─────────────────────────
+function WaterfallScene({ solved }: { solved: boolean }) {
+  const t = useChapterText();
+  const fruits = ['🍎', '🍌', '🍍', '🥭', '🍊'];
+  return (
+    <svg viewBox="0 0 280 160" className="w-full h-full">
+      {/* Sky */}
+      <rect width="280" height="70" fill="#0D47A1" rx="8" />
+      {/* Cliff left */}
+      <rect x="0" y="35" width="80" height="125" fill="#5D4037" rx="4" />
+      {/* Cliff right */}
+      <rect x="200" y="50" width="80" height="110" fill="#5D4037" rx="4" />
+      {/* Waterfall */}
+      <motion.rect
+        x="72" y="35" width="36" height="90" fill="#42A5F5" rx="4" opacity={0.5}
+        animate={{ opacity: [0.35, 0.6, 0.35] }}
+        transition={{ duration: 2, repeat: Infinity }}
+      />
+      {/* Pool */}
+      <ellipse cx="140" cy="130" rx="80" ry="14" fill="#1565C0" opacity={0.5} />
+      {/* Ground */}
+      <rect x="0" y="132" width="280" height="28" fill="#2E7D32" rx="4" />
+
+      {/* Fruits — scattered or collected */}
+      {fruits.map((fruit, i) => (
+        <motion.text key={i}
+          x={solved ? 125 + (i % 3) * 18 : 50 + i * 42} y={solved ? 110 : 118 + (i % 2) * 8}
+          fontSize="13" textAnchor="middle"
+          animate={solved ? { scale: [1, 1.08, 1] } : {}}
+          transition={solved ? { duration: 1.2, delay: i * 0.15 } : {}}
+        >
+          {fruit}
+        </motion.text>
+      ))}
+
+      {/* Basket when solved */}
+      {solved && (
+        <motion.text x="140" y="126" fontSize="18" textAnchor="middle"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+        >🧺</motion.text>
+      )}
+
+      <text x="140" y="153" textAnchor="middle" fontSize="9" fill="#FACC15" fontWeight="bold" opacity="0.7">
+        {solved ? t('sceneWaterfallDone') : t('sceneWaterfallCollect')}
+      </text>
+    </svg>
+  );
+}
+
+// ─── Chapter 7: Garden Scene (While Loops) ──────────────────────
+function GardenScene({ solved }: { solved: boolean }) {
+  const t = useChapterText();
+  return (
+    <svg viewBox="0 0 280 160" className="w-full h-full">
+      <defs>
+        <linearGradient id="gardenSky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#4FC3F7" />
+          <stop offset="100%" stopColor="#81D4FA" />
+        </linearGradient>
+      </defs>
+      <rect width="280" height="70" fill="url(#gardenSky)" rx="8" />
+      {/* Sun */}
+      <circle cx="240" cy="28" r="18" fill="#FFD54F" />
+      {/* Ground */}
+      <rect x="0" y="68" width="280" height="92" fill="#4E342E" rx="4" />
+      <rect x="0" y="68" width="280" height="12" fill="#33691E" rx="4" />
+      {/* Garden bed */}
+      <rect x="30" y="85" width="220" height="48" rx="6" fill="#3E2723" stroke="#5D4037" strokeWidth="2" />
+
+      {/* Flowers */}
+      {[55, 95, 140, 185, 225].map((x, i) => (
+        <g key={i}>
+          <motion.line
+            x1={x} y1={solved ? 62 : 85} x2={x} y2="118"
+            stroke={solved ? '#43A047' : '#8D6E63'} strokeWidth="2"
+            animate={solved ? { y1: 58 } : {}}
+            transition={{ duration: 0.6, delay: i * 0.15 }}
+          />
+          <motion.text
+            x={x} y={solved ? 58 : 85} fontSize={solved ? '14' : '10'} textAnchor="middle"
+            animate={solved ? { opacity: 1 } : { opacity: [0.4, 0.6, 0.4] }}
+            transition={solved ? { duration: 0.5, delay: i * 0.15 } : { duration: 2.5, repeat: Infinity }}
+          >
+            {solved ? ['🌸', '🌺', '🌻', '🌷', '🌼'][i] : '🥀'}
+          </motion.text>
+        </g>
+      ))}
+
+      {/* Watering can */}
+      <motion.text
+        x={solved ? 250 : 55} y="66" fontSize="14" textAnchor="middle"
+        animate={solved ? {} : { x: [50, 230, 50] }}
+        transition={solved ? {} : { duration: 5, repeat: Infinity }}
+      >🪣</motion.text>
+
+      {/* Butterflies when solved */}
+      {solved && [0, 1].map(i => (
+        <motion.text key={i} x={90 + i * 80} y={48} fontSize="11" textAnchor="middle"
+          animate={{ y: [48, 40, 48] }}
+          transition={{ duration: 2.5, repeat: Infinity, delay: i * 0.6 }}
+        >🦋</motion.text>
+      ))}
+
+      <text x="140" y="153" textAnchor="middle" fontSize="9" fill="#FACC15" fontWeight="bold" opacity="0.7">
+        {solved ? t('sceneGardenDone') : t('sceneGardenWater')}
+      </text>
+    </svg>
+  );
+}
+
+// ─── Chapter 8: Market Scene (String Joining) ───────────────────
+function MarketScene({ solved }: { solved: boolean }) {
+  const t = useChapterText();
+  return (
+    <svg viewBox="0 0 280 160" className="w-full h-full">
+      {/* Sky */}
+      <rect width="280" height="55" fill="#FF8A65" rx="8" />
+      {/* Market stall */}
+      <rect x="40" y="45" width="200" height="85" rx="5" fill="#8D6E63" />
+      <rect x="35" y="36" width="210" height="14" rx="4" fill="#D32F2F" />
+      {/* Stall poles */}
+      <rect x="40" y="36" width="5" height="94" fill="#5D4037" />
+      <rect x="235" y="36" width="5" height="94" fill="#5D4037" />
+      {/* Market goods */}
+      <text x="75" y="82" fontSize="14">🍎</text>
+      <text x="115" y="82" fontSize="14">🥭</text>
+      <text x="155" y="82" fontSize="14">🍌</text>
+      <text x="195" y="82" fontSize="14">🥥</text>
+
+      {/* Sign — broken or fixed */}
+      {solved ? (
+        <motion.g initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.6, type: 'spring', stiffness: 200 }}>
+          <rect x="65" y="96" width="150" height="28" rx="6" fill="#FFF8E1" stroke="#FACC15" strokeWidth="2" />
+          <text x="140" y="115" textAnchor="middle" fontSize="12" fill="#E65100" fontWeight="bold">Karibu Sokoni!</text>
+          {[0, 1, 2].map(i => (
+            <motion.circle key={i} cx={80 + i * 40} cy="96" r="2.5" fill="#FACC15"
+              animate={{ opacity: [0, 1, 0] }}
+              transition={{ duration: 1.5, repeat: 2, delay: i * 0.25 }}
+            />
+          ))}
+        </motion.g>
+      ) : (
+        <g>
+          <motion.rect x="70" y="100" width="50" height="18" rx="4" fill="#FFF8E1" stroke="#D7CCC8" strokeWidth="1"
+            animate={{ rotate: [-4, -2, -4] }}
+            transition={{ duration: 2.5, repeat: Infinity }}
+            style={{ transformOrigin: '95px 109px' }}
+          />
+          <motion.rect x="140" y="103" width="65" height="16" rx="4" fill="#FFF8E1" stroke="#D7CCC8" strokeWidth="1"
+            animate={{ rotate: [2, 4, 2] }}
+            transition={{ duration: 2.5, repeat: Infinity }}
+            style={{ transformOrigin: '172px 111px' }}
+          />
+          <text x="95" y="113" textAnchor="middle" fontSize="7" fill="#8D6E63">Kari...</text>
+          <text x="172" y="113" textAnchor="middle" fontSize="7" fill="#8D6E63">...bu</text>
+        </g>
+      )}
+
+      {/* Ground */}
+      <rect x="0" y="130" width="280" height="30" fill="#8D6E63" rx="4" />
+      <text x="140" y="153" textAnchor="middle" fontSize="9" fill="#FACC15" fontWeight="bold" opacity="0.7">
+        {solved ? t('sceneMarketDone') : t('sceneMarketFix')}
+      </text>
+    </svg>
+  );
+}
+
+// ─── Chapter 9: Library Scene (Nested Loops) ────────────────────
+function LibraryScene({ solved }: { solved: boolean }) {
+  const t = useChapterText();
+  return (
+    <svg viewBox="0 0 280 160" className="w-full h-full">
+      {/* Night sky */}
+      <rect width="280" height="45" fill="#1A237E" rx="8" />
+      {/* Stars — static */}
+      {[30, 80, 130, 190, 250].map((x, i) => (
+        <circle key={i} cx={x} cy={12 + (i % 2) * 14} r="1" fill="white" opacity={0.5} />
+      ))}
+      {/* Library building */}
+      <rect x="45" y="40" width="190" height="95" rx="5" fill="#4E342E" />
+      {/* Columns */}
+      <rect x="55" y="44" width="10" height="86" fill="#6D4C41" rx="2" />
+      <rect x="215" y="44" width="10" height="86" fill="#6D4C41" rx="2" />
+      {/* Pediment */}
+      <polygon points="140,22 38,44 242,44" fill="#5D4037" />
+      {/* Door */}
+      <rect x="115" y="96" width="50" height="39" rx="4" fill="#3E2723" />
+      {/* Book icon */}
+      <text x="140" y="54" textAnchor="middle" fontSize="13">📚</text>
+
+      {/* Star pattern — left window */}
+      <g transform="translate(72, 60)">
+        {solved ? (
+          [0, 1, 2].map(row => (
+            <g key={row}>
+              {[0, 1, 2].map(col => (
+                <motion.text key={`${row}-${col}`} x={col * 14} y={row * 11 + 8} fontSize="8"
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                  transition={{ duration: 0.4, delay: row * 0.15 + col * 0.08 }}
+                >⭐</motion.text>
+              ))}
+            </g>
+          ))
+        ) : (
+          <rect width="38" height="28" rx="3" fill="#1A237E" opacity="0.5" />
+        )}
+      </g>
+
+      {/* Star pattern — right window */}
+      <g transform="translate(168, 60)">
+        {solved ? (
+          [0, 1, 2].map(row => (
+            <g key={row}>
+              {[0, 1, 2].map(col => (
+                <motion.text key={`${row}-${col}`} x={col * 14} y={row * 11 + 8} fontSize="8"
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                  transition={{ duration: 0.4, delay: 0.4 + row * 0.15 + col * 0.08 }}
+                >⭐</motion.text>
+              ))}
+            </g>
+          ))
+        ) : (
+          <rect width="38" height="28" rx="3" fill="#1A237E" opacity="0.5" />
+        )}
+      </g>
+
+      {/* Ground */}
+      <rect x="0" y="132" width="280" height="28" fill="#2E7D32" rx="4" />
+      <text x="140" y="153" textAnchor="middle" fontSize="9" fill="#FACC15" fontWeight="bold" opacity="0.7">
+        {solved ? t('sceneLibraryDone') : t('sceneLibraryDecorate')}
+      </text>
+    </svg>
+  );
+}
+
+// ─── Chapter 10: Celebration Scene (Grand Finale) ───────────────
+function CelebrationScene({ solved }: { solved: boolean }) {
+  const t = useChapterText();
+  return (
+    <svg viewBox="0 0 280 160" className="w-full h-full">
+      {/* Night sky */}
+      <rect width="280" height="85" fill="#1A1A2E" rx="8" />
+      {/* Stars — static */}
+      {[18, 52, 90, 130, 170, 210, 248].map((x, i) => (
+        <circle key={i} cx={x} cy={10 + (i % 3) * 16} r="1.5" fill="white" opacity={0.3 + (i % 2) * 0.3} />
+      ))}
+      {/* Village houses */}
+      <rect x="15" y="72" width="40" height="38" rx="3" fill="#8D6E63" />
+      <polygon points="35,55 10,72 60,72" fill="#5D4037" />
+      <rect x="225" y="68" width="45" height="42" rx="3" fill="#8D6E63" />
+      <polygon points="247,50 220,68 275,68" fill="#5D4037" />
+      {/* Lit windows */}
+      <rect x="25" y="82" width="8" height="8" rx="1" fill="#FFCA28" opacity="0.8" />
+      <rect x="38" y="82" width="8" height="8" rx="1" fill="#FFCA28" opacity="0.8" />
+      <rect x="235" y="78" width="8" height="8" rx="1" fill="#FFCA28" opacity="0.8" />
+      <rect x="252" y="78" width="8" height="8" rx="1" fill="#FFCA28" opacity="0.8" />
+
+      {/* Ground / village square */}
+      <rect x="0" y="108" width="280" height="52" fill="#33691E" rx="4" />
+      <ellipse cx="140" cy="124" rx="70" ry="16" fill="#4E342E" opacity="0.5" />
+
+      {/* Party banner */}
+      <motion.g animate={{ y: [0, -2, 0] }} transition={{ duration: 2.5, repeat: Infinity }}>
+        <line x1="50" y1="50" x2="230" y2="50" stroke="#FACC15" strokeWidth="2" />
+        {['🎊', '🎉', '🎈', '🎊', '🎉', '🎈'].map((e, i) => (
+          <text key={i} x={60 + i * 30} y="47" fontSize="10" textAnchor="middle">{e}</text>
+        ))}
+      </motion.g>
+
+      {/* Characters */}
+      {solved ? (
+        <>
+          {['🐢', '👾', '🧙'].map((ch, i) => (
+            <motion.text key={i} x={100 + i * 40} y="122" fontSize="16" textAnchor="middle"
+              animate={{ y: [122, 116, 122] }}
+              transition={{ duration: 0.8, repeat: 3, delay: i * 0.15 }}
+            >{ch}</motion.text>
+          ))}
+          {/* Fireworks — limited bursts */}
+          {[0, 1, 2].map(i => (
+            <motion.circle key={`fw-${i}`} cx={60 + i * 80} cy={35} r="3"
+              fill={['#FF5252', '#FACC15', '#4FC3F7'][i]}
+              animate={{ opacity: [0, 1, 0], scale: [0, 2.5, 0] }}
+              transition={{ duration: 1.5, repeat: 2, delay: i * 0.4 }}
+            />
+          ))}
+        </>
+      ) : (
+        <>
+          <text x="110" y="124" fontSize="13" textAnchor="middle">🐢</text>
+          <text x="140" y="124" fontSize="13" textAnchor="middle">👾</text>
+          <text x="170" y="124" fontSize="13" textAnchor="middle">🧙</text>
+          <motion.text x="140" y="110" fontSize="8" textAnchor="middle" fill="#FACC15"
+            animate={{ opacity: [0.4, 1, 0.4] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >?</motion.text>
+        </>
+      )}
+
+      <text x="140" y="153" textAnchor="middle" fontSize="9" fill="#FACC15" fontWeight="bold" opacity="0.7">
+        {solved ? t('sceneCelebrationDone') : t('sceneCelebrationWelcome')}
+      </text>
+    </svg>
+  );
+}
+
+/** Picks the correct scene illustration based on chapter number */
 function SceneIllustration({ chapterNumber, solved }: { scene: string; chapterNumber: number; solved: boolean }) {
   switch (chapterNumber) {
     case 1: return <GateScene solved={solved} />;
@@ -678,24 +743,83 @@ function SceneIllustration({ chapterNumber, solved }: { scene: string; chapterNu
     case 3: return <ForkPathScene solved={solved} />;
     case 4: return <BridgeCrossingScene solved={solved} />;
     case 5: return <MountainSpellScene solved={solved} />;
+    case 6: return <CelebrationScene solved={solved} />;
     default: return <GateScene solved={solved} />;
   }
 }
 
 export default function StoryPanel({ chapter, onDialogueComplete, solved = false }: StoryPanelProps) {
   const tc = useChapterText();
-  const { getDialogueIndex, advanceDialogue } = useGameStore();
-  const dialogueIdx = getDialogueIndex(chapter.slug);
+  const store = useGameStore();
+  const hydrated = useStoreHydrated();
+  const { getDialogueIndex, advanceDialogue, isShowingOutro, setShowingOutro } = store;
+  const narrationEnabled = hydrated ? store.narrationEnabled : false;
+  const dialogueIdx = hydrated ? getDialogueIndex(chapter.slug) : 0;
   const typingDone = true;
 
-  const currentDialogue = chapter.dialogues[Math.min(dialogueIdx, chapter.dialogues.length - 1)];
-  const isLastDialogue = dialogueIdx >= chapter.dialogues.length - 1;
+  const showingOutro = hydrated ? isShowingOutro(chapter.slug) : false;
+  const outroDialogues = chapter.outroDialogues || [];
+
+  // Determine which dialogue set we're in
+  const outroIndex = showingOutro ? dialogueIdx - chapter.dialogues.length : -1;
+
+  const currentDialogue = showingOutro
+    ? outroDialogues[Math.min(Math.max(outroIndex, 0), outroDialogues.length - 1)]
+    : chapter.dialogues[Math.min(dialogueIdx, chapter.dialogues.length - 1)];
+
+  const isLastDialogue = showingOutro
+    ? outroIndex >= outroDialogues.length - 1
+    : dialogueIdx >= chapter.dialogues.length - 1;
+
+  // Detect locale from tc's resolved messages
+  const locale = tc('locale') !== 'locale' ? tc('locale') : 'sw';
+
+  // Pre-load TTS voices on first mount
+  React.useEffect(() => {
+    preloadVoices();
+  }, []);
+
+  // Auto-narrate when narration is enabled and dialogue changes
+  React.useEffect(() => {
+    if (!narrationEnabled || !currentDialogue) return;
+    const resolvedText = tc(currentDialogue.text);
+    speak(resolvedText, currentDialogue.speaker, locale).catch(() => {
+      // Silently ignore — Azure may fail, browser fallback may not be available
+    });
+    return () => { stop(); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [narrationEnabled, dialogueIdx, showingOutro]);
+
+  // Trigger outro when puzzle is solved and we have outro dialogues
+  React.useEffect(() => {
+    if (solved && outroDialogues.length > 0 && !showingOutro) {
+      setShowingOutro(chapter.slug, true);
+    }
+  }, [solved, outroDialogues.length, showingOutro, chapter.slug, setShowingOutro]);
 
   const handleAdvance = () => {
     if (!isLastDialogue) {
       advanceDialogue(chapter.slug);
-    } else {
+    } else if (!showingOutro) {
       onDialogueComplete?.();
+    }
+    // If showing outro and at last dialogue, do nothing (let completion overlay handle it)
+  };
+
+  // Determine which character to show based on current speaker
+  const currentSpeaker = currentDialogue?.speaker || chapter.character;
+  const renderCharacter = () => {
+    switch (currentSpeaker) {
+      case 'shida':
+        return <ShidaCharacter speaking={!solved} celebrating={false} />;
+      case 'mzee_byte':
+        return <MzeeByteCharacter speaking={false} celebrating={solved} />;
+      case 'kito':
+        return <KitoCharacter speaking={false} celebrating={solved} />;
+      default:
+        return chapter.character === 'kito'
+          ? <KitoCharacter speaking={false} celebrating={solved} />
+          : <MzeeByteCharacter speaking={false} celebrating={solved} />;
     }
   };
 
@@ -723,6 +847,11 @@ export default function StoryPanel({ chapter, onDialogueComplete, solved = false
     bridge: 'from-orange-950 via-indigo-950 to-indigo-900',
     mountain: 'from-slate-950 via-indigo-950 to-purple-950',
     cave: 'from-gray-950 via-indigo-950 to-indigo-900',
+    waterfall: 'from-blue-950 via-cyan-950 to-indigo-900',
+    garden: 'from-emerald-950 via-green-900 to-lime-950',
+    market: 'from-orange-950 via-amber-950 to-indigo-900',
+    library: 'from-indigo-950 via-violet-950 to-purple-900',
+    celebration: 'from-purple-950 via-indigo-950 to-pink-950',
   };
 
   return (
@@ -755,47 +884,69 @@ export default function StoryPanel({ chapter, onDialogueComplete, solved = false
         </div>
       </div>
 
-      {/* Scene Illustration + Character Display */}
-      <div className="relative flex-1 flex flex-col items-center justify-center min-h-0 gap-2 px-4">
-        {/* Chapter-specific scene illustration */}
+      {/* Scene Illustration with Character inside */}
+      <div className="relative w-full h-[50vh] shrink-0">
+        {/* Scene SVG — fills the entire area */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="w-full flex items-center justify-center"
+          className="w-full h-full"
         >
           <SceneIllustration scene={chapter.scene} chapterNumber={chapter.number} solved={solved} />
         </motion.div>
 
-        {/* Character — smaller, anchored below the scene */}
+        {/* Character — positioned inside the scene, bottom-center */}
         <motion.div
-          key={chapter.character}
+          key={currentSpeaker}
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="w-16 h-16 sm:w-20 sm:h-20 shrink-0"
+          className="absolute bottom-2 left-1/2 -translate-x-1/2 w-24 h-24 sm:w-28 sm:h-28 z-10 drop-shadow-lg"
         >
-          {chapter.character === 'kito' ? (
-            <KitoCharacter speaking={false} celebrating={solved} />
-          ) : (
-            <MzeeByteCharacter speaking={false} celebrating={solved} />
-          )}
+          {renderCharacter()}
         </motion.div>
       </div>
 
       {/* Dialogue Area */}
-      <div className="relative px-4 pb-4">
+      <div className="relative px-4 pb-6 w-full max-w-2xl mx-auto z-10">
         <AnimatePresence mode="wait">
           <motion.div
             key={dialogueIdx}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-            className="dialogue-bubble cursor-pointer"
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className={`dialogue-bubble relative ${
+              currentSpeaker === 'narrator'
+                ? 'bg-stone-800 backdrop-blur-xl border border-stone-700 p-5 rounded-2xl shadow-lg italic'
+                : 'bg-bg-surface/95 backdrop-blur-xl border-2 border-primary/30 p-5 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow'
+            }`}
             onClick={handleAdvance}
           >
-            <p className="text-sm sm:text-base text-text-primary leading-relaxed">
+            {/* Speaker Badge — only for characters, not narrator */}
+            {currentSpeaker !== 'narrator' && (
+              <div className="absolute -top-3 left-4">
+                <SpeakerBadge speaker={currentSpeaker} />
+              </div>
+            )}
+
+            {/* Narration (TTS) — read this line aloud */}
+            <div className="absolute -top-3 right-4">
+              <NarrationButton
+                text={tc(currentDialogue.text)}
+                speaker={currentSpeaker}
+                lang={locale}
+                compact
+              />
+            </div>
+
+            {/* Dialogue Text */}
+            <p className={`text-base sm:text-lg leading-relaxed font-medium ${
+              currentSpeaker === 'narrator'
+                ? 'text-text-secondary'
+                : 'mt-2 text-text-primary'
+            }`}>
               {tc(currentDialogue.text)}
             </p>
 
@@ -804,38 +955,57 @@ export default function StoryPanel({ chapter, onDialogueComplete, solved = false
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
-                className="mt-3 p-3 rounded-lg bg-bg-deep/80 border border-secondary/20"
+                className="mt-4 overflow-hidden"
               >
-                <span className="text-xs text-secondary font-bold block mb-2">{tc('exampleLabel')}</span>
-                <pre className="text-xs sm:text-sm font-mono leading-relaxed overflow-x-auto">
-                  <code>
-                    {currentDialogue.codeExample.split('\n').map((line, i) => (
-                      <div key={i}>
-                        {highlightJamboLine(line)}
-                      </div>
-                    ))}
-                  </code>
-                </pre>
+                <div className="p-4 rounded-xl bg-bg-deep/50 border border-secondary/20 shadow-inner">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-lg">💡</span>
+                    <span className="text-xs text-secondary font-bold uppercase tracking-wider">{tc('exampleLabel')}</span>
+                  </div>
+                  <pre className="text-sm font-mono leading-relaxed overflow-x-auto text-emerald-300">
+                    <code>
+                      {currentDialogue.codeExample.split('\n').map((line, i) => (
+                        <div key={i} className="whitespace-pre">
+                          {highlightJamboLine(line)}
+                        </div>
+                      ))}
+                    </code>
+                  </pre>
+                </div>
               </motion.div>
             )}
 
             {/* Advance indicator */}
             {typingDone && (
               <motion.div
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="mt-3 flex justify-end"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="mt-4 flex justify-center"
               >
                 <button
-                  onClick={handleAdvance}
-                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAdvance();
+                  }}
+                  className={`group flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold transition-all shadow-lg transform hover:-translate-y-0.5 active:translate-y-0 ${
                     isLastDialogue
-                      ? 'bg-primary text-white hover:bg-primary/90 shadow-md shadow-primary/25'
-                      : 'bg-surface-card hover:bg-surface-card/80 text-text-secondary border border-white/10'
+                      ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:shadow-emerald-500/30'
+                      : 'bg-white/10 hover:bg-white/15 text-white border border-white/10'
                   }`}
                 >
-                  {isLastDialogue ? tc('startCoding') : tc('clickToContinue')}
+                  <span>{isLastDialogue ? tc('startCoding') : tc('clickToContinue')}</span>
+                  <span className="group-hover:translate-x-1 transition-transform">
+                    {isLastDialogue ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                        <path fillRule="evenodd" d="M2 10a.75.75 0 0 1 .75-.75h12.59l-2.1-1.95a.75.75 0 1 1 1.02-1.1l3.5 3.25a.75.75 0 0 1 0 1.1l-3.5 3.25a.75.75 0 1 1-1.02-1.1l2.1-1.95H2.75A.75.75 0 0 1 2 10Z" clipRule="evenodd" />
+                      </svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                        <path fillRule="evenodd" d="M2 10a.75.75 0 0 1 .75-.75h12.59l-2.1-1.95a.75.75 0 1 1 1.02-1.1l3.5 3.25a.75.75 0 0 1 0 1.1l-3.5 3.25a.75.75 0 1 1-1.02-1.1l2.1-1.95H2.75A.75.75 0 0 1 2 10Z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                  </span>
                 </button>
               </motion.div>
             )}

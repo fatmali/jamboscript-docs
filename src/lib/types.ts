@@ -38,6 +38,8 @@ export interface PuzzleConfig {
   expectedOutput?: string;
 }
 
+export type DifficultyTier = 'guided' | 'scaffolded' | 'independent';
+
 export interface ChapterData {
   id: string;
   /** e.g. "sura-1" */
@@ -54,10 +56,12 @@ export interface ChapterData {
   character: 'kito' | 'mzee_byte';
   /** Story dialogues */
   dialogues: Dialogue[];
+  /** Outro dialogues shown after solving the puzzle (narrative reward) */
+  outroDialogues?: Dialogue[];
   /** The puzzle / coding challenge */
   puzzle: PuzzleConfig;
   /** Scene / visual theme */
-  scene: 'village' | 'forest' | 'bridge' | 'mountain' | 'cave';
+  scene: 'village' | 'forest' | 'bridge' | 'mountain' | 'cave' | 'waterfall' | 'garden' | 'market' | 'library' | 'celebration';
   /** Stars available (1-3) */
   maxStars: number;
   /** Whether chapter is free or premium */
@@ -66,6 +70,10 @@ export interface ChapterData {
   prevChapter: string | null;
   /** Next chapter slug (null for last) */
   nextChapter: string | null;
+  /** Difficulty tier — controls how much starter code / scaffolding is provided */
+  difficulty?: DifficultyTier;
+  /** Overarching quest text connecting this chapter to the larger story */
+  questHook?: string;
 }
 
 // ─── Game State ──────────────────────────────────────────────────────

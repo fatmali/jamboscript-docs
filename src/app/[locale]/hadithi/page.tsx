@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { useGameStore } from '@/lib/store';
+import { useGameStore, useStoreHydrated } from '@/lib/store';
 import { chapters } from '@/data/chapters';
 import { useTranslations } from 'next-intl';
 import { Link, useRouter } from '@/i18n/navigation';
@@ -16,6 +16,7 @@ function seededRandom(seed: number) {
 export default function StoryMapPage() {
   const router = useRouter();
   const { chapters: progress, player } = useGameStore();
+  const hydrated = useStoreHydrated();
   const t = useTranslations('StoryMap');
   const tc = useTranslations('Common');
   const tch = useTranslations('Chapters');
@@ -35,6 +36,7 @@ export default function StoryMapPage() {
 
   const isUnlocked = (chapterIndex: number) => {
     if (chapterIndex === 0) return true;
+    if (!hydrated) return false; // Show locked until hydrated
     const prevChapter = chapters[chapterIndex - 1];
     return progress[prevChapter.slug]?.completed || false;
   };
@@ -78,7 +80,7 @@ export default function StoryMapPage() {
           <LanguageSwitcher />
           <div className="flex items-center gap-2 text-secondary">
             <span className="text-lg">⭐</span>
-            <span className="font-bold">{player.totalStars}</span>
+            <span className="font-bold">{hydrated ? player.totalStars : 5}</span>
           </div>
         </div>
       </header>
@@ -118,7 +120,7 @@ export default function StoryMapPage() {
         <div className="space-y-6">
           {chapters.map((chapter, index) => {
             const unlocked = isUnlocked(index);
-            const chapterProgress = progress[chapter.slug];
+            const chapterProgress = hydrated ? progress[chapter.slug] : undefined;
             const completed = chapterProgress?.completed || false;
             const stars = chapterProgress?.starsEarned || 0;
 

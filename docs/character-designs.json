@@ -1,0 +1,424 @@
+{
+  "project": {
+    "name": "JamboScript",
+    "description": "Interactive children's coding platform (ages 9–12) teaching programming through a Swahili-language adventure story. Three characters guide the player on a quest to restore a magical Code Tree.",
+    "target_audience": "Children aged 9–12",
+    "art_style": "Warm, friendly children's book illustration. Think Studio Ghibli meets Kurzgesagt. Soft rounded shapes, bold outlines (2–3px), no sharp or threatening edges. East African-inspired without being stereotypical.",
+    "cultural_inspiration": "East African (Swahili coast) — subtle kanga/kitenge textile patterns as geometric accents (diamonds, chevrons, zigzags). Not dominant, just flavor.",
+    "accent_palette": {
+      "gold": "#FACC15",
+      "teal": "#14B8A6"
+    }
+  },
+
+  "svg_requirements": {
+    "format": "Pure inline SVG code — no raster images, no <image> tags, no external assets",
+    "size_target": "3–5KB per character SVG",
+    "use_defs": true,
+    "defs_note": "Place all gradients, patterns, and reusable clip-paths inside a <defs> block",
+    "structure_rule": "Every animatable body part MUST be wrapped in its own <g id='part-name'> group. These groups will be converted to Framer Motion <motion.g> elements for animation. Each group needs a logical transform origin.",
+    "no_inline_styles": true,
+    "style_note": "Use SVG attributes (fill, stroke, etc.) not CSS style attributes",
+    "stroke_linecap": "round",
+    "stroke_linejoin": "round"
+  },
+
+  "characters": [
+    {
+      "id": "kito",
+      "name": "Kito",
+      "emoji": "🐢",
+      "role": "The Friendly Guide Tortoise — player's coding mentor and best friend",
+      "personality": "Warm, encouraging, patient, curious. Like a kind elementary school teacher who happens to be an adorable tortoise. Never condescending.",
+      "swahili_meaning": "'Kito' means 'jewel' or 'precious thing' in Swahili",
+
+      "viewBox": "0 0 120 120",
+
+      "visual_design": {
+        "species": "Anthropomorphic tortoise, standing upright on 2 legs (not 4). Cute chibi proportions — head is ~35% of total height.",
+        "build": "Short and round. Compact, friendly silhouette.",
+        "pose": "¾ front-facing view, slight friendly lean forward"
+      },
+
+      "colors": {
+        "shell_primary": "#3DA85C",
+        "shell_dark": "#2D8B47",
+        "shell_highlight": "#4ABA6A",
+        "skin": "#8BC34A",
+        "skin_shadow": "#7CB342",
+        "cheeks": { "color": "#9ACD5A", "opacity": 0.5 },
+        "eye_sclera": "white",
+        "eye_iris": "#1E1B4B",
+        "eye_pupil": "#1E1B4B",
+        "eye_catchlight": "white",
+        "mouth_stroke": "#2D8B47",
+        "hat": "#D4A017",
+        "hat_band": "#B8860B",
+        "belly": "#C5E1A5"
+      },
+
+      "body_parts": {
+        "body": {
+          "g_id": "kito-body",
+          "description": "Main torso — round dome shell viewed from ¾ front. Shell has 3 curved horizontal segment lines. Small gold (#FACC15) diamond accents on shell inspired by kanga textile patterns. Lighter belly patch on front.",
+          "animation": "Gentle breathing bob — slow Y oscillation (3.5s cycle), subtle squash/stretch on celebrate"
+        },
+        "head": {
+          "g_id": "kito-head",
+          "parent": "body",
+          "description": "Oval head, slightly oversized (cute proportions). Soft rounded snout. Two rosy cheek circles. Nested inside body group for secondary motion (delayed bounce).",
+          "animation": "Secondary bounce with 0.15s delay from body. Slight tilt when speaking."
+        },
+        "eye_left": {
+          "g_id": "kito-eye-left",
+          "parent": "head",
+          "description": "Large round eye. White sclera, dark navy iris (#1E1B4B), small white catchlight dot at 10 o'clock position.",
+          "animation": "Periodic blink (scaleY keyframes: 1→0.1→1 every ~5s). Pupil darts subtly."
+        },
+        "eye_right": {
+          "g_id": "kito-eye-right",
+          "parent": "head",
+          "description": "Same as left eye, mirrored position.",
+          "animation": "Blinks in sync with left eye."
+        },
+        "mouth": {
+          "g_id": "kito-mouth",
+          "parent": "head",
+          "element": "path",
+          "description": "Friendly smile as an SVG <path>. Gentle upward curve for idle, opens wider when speaking, big grin when celebrating.",
+          "animation": "SVG path 'd' attribute morphing between idle/speaking/celebrating shapes",
+          "states": {
+            "idle": "Gentle closed smile curve",
+            "speaking": "Opens and closes — alternates between open 'O' and smile",
+            "celebrating": "Wide open grin"
+          }
+        },
+        "hat": {
+          "g_id": "kito-hat",
+          "parent": "head",
+          "description": "Small round safari/explorer hat. Gold (#D4A017) with darker band (#B8860B). Sits at a slightly jaunty angle on top of head.",
+          "animation": "Extra-delayed secondary motion (0.25s after head). Springy bounce on celebrate."
+        },
+        "leg_left": {
+          "g_id": "kito-leg-left",
+          "parent": "body",
+          "description": "Short stubby tortoise leg. Same green as skin.",
+          "animation": "Subtle rotation — slight walking idle motion"
+        },
+        "leg_right": {
+          "g_id": "kito-leg-right",
+          "parent": "body",
+          "description": "Mirror of left leg.",
+          "animation": "Opposite phase from left leg"
+        },
+        "tail": {
+          "g_id": "kito-tail",
+          "parent": "body",
+          "description": "Small pointed tail poking out behind shell.",
+          "animation": "Gentle wagging"
+        },
+        "shell_pattern": {
+          "g_id": "kito-shell-pattern",
+          "parent": "body",
+          "description": "Decorative kanga-inspired diamond pattern accents on shell surface. Gold (#FACC15) small diamonds/dots arranged along shell segment lines.",
+          "animation": "Glow/shimmer on celebrate"
+        }
+      },
+
+      "celebration_effects": {
+        "description": "3–5 small sparkle/star particles that burst outward from body, staggered delays",
+        "particle_shape": "4-pointed star or diamond",
+        "colors": ["#FACC15", "#3DA85C", "#14B8A6"]
+      },
+
+      "speaking_effects": {
+        "description": "2–3 small dots that float upward near the head (thought/speech indicator)",
+        "colors": ["#3DA85C"]
+      }
+    },
+
+    {
+      "id": "mzee_byte",
+      "name": "Mzee Byte",
+      "emoji": "🧙",
+      "role": "The Wise Elder Sage — keeper of ancient coding knowledge",
+      "personality": "Deeply wise, calm, speaks in proverbs and riddles. Slow and deliberate — every gesture has meaning. Warm grandfather energy.",
+      "swahili_meaning": "'Mzee' means 'elder' or 'respected old person' in Swahili",
+
+      "viewBox": "0 0 120 130",
+
+      "visual_design": {
+        "species": "Elderly humanoid figure. Not a specific animal — more of a wise sage/wizard archetype with East African aesthetic.",
+        "build": "Tall and lean, slightly stooped with age. Dignified posture.",
+        "pose": "¾ front-facing, leaning slightly on staff, one hand free for gestures"
+      },
+
+      "colors": {
+        "skin": "#A07D1C",
+        "skin_shadow": "#8B6914",
+        "robe_primary": "#3B3875",
+        "robe_dark": "#312E81",
+        "robe_highlight": "#4B47A5",
+        "robe_trim": "#FACC15",
+        "kofia": "#14B8A6",
+        "kofia_band": "#FACC15",
+        "beard": "white",
+        "beard_secondary": "#F5F5F5",
+        "eye_sclera": "white",
+        "eye_iris": "#F59E0B",
+        "eye_iris_glow": "#FBBF24",
+        "eyebrow": "#6B5311",
+        "staff_wood": "#8B6914",
+        "staff_wood_highlight": "#A07D1C",
+        "staff_orb": "#14B8A6",
+        "staff_orb_glow": { "color": "#14B8A6", "opacity": 0.3 },
+        "feet": "#2D2A5E"
+      },
+
+      "body_parts": {
+        "body": {
+          "g_id": "mzee-body",
+          "description": "Main torso wrapped in flowing indigo/midnight-blue robes (kanzu-inspired). Robes reach to feet. Gold (#FACC15) geometric trim lines along collar, chest, and hem — Swahili henna-inspired motifs. Subtle fold lines for fabric feel.",
+          "animation": "Slow dignified sway — gentle Y oscillation (3.5s cycle). Minimal movement — he's an elder."
+        },
+        "robe_hem": {
+          "g_id": "mzee-robe-hem",
+          "parent": "body",
+          "element": "path",
+          "description": "Bottom edge of robes — wavy flowing hem line as SVG path.",
+          "animation": "Gentle wave ripple — path 'd' morphing to simulate cloth movement"
+        },
+        "robe_trim": {
+          "g_id": "mzee-robe-trim",
+          "parent": "body",
+          "description": "Gold decorative trim lines along collar, chest bands, and hem. 2–3 horizontal curved lines with small geometric accents.",
+          "animation": "Subtle shimmer/opacity pulse on celebrate"
+        },
+        "arm_left": {
+          "g_id": "mzee-arm-left",
+          "parent": "body",
+          "element": "path",
+          "description": "Left arm — the 'gesture' arm. Robe sleeve covers most of arm, hand visible at end. Warm brown skin.",
+          "animation": "Gestures when speaking — path 'd' morphing to raise/lower hand. Idle: relaxed at side."
+        },
+        "arm_right": {
+          "g_id": "mzee-arm-right",
+          "parent": "body",
+          "description": "Right arm — holds the staff. Mostly hidden by robe, hand grips staff mid-height.",
+          "animation": "Mostly static — slight grip adjustment"
+        },
+        "head": {
+          "g_id": "mzee-head",
+          "parent": "body",
+          "description": "Rounded head, warm brown skin (#A07D1C) with slightly darker shadow (#8B6914). Elderly proportions — not chibi like Kito. Head is ~25% of total height.",
+          "animation": "Secondary bounce with 0.15s delay. Slight nod when speaking, dignified tilt on celebrate."
+        },
+        "eye_left": {
+          "g_id": "mzee-eye-left",
+          "parent": "head",
+          "description": "Slightly narrowed eye (wise/knowing expression). White sclera, amber iris (#F59E0B). Small white catchlight.",
+          "animation": "Slow wise blinks (scaleY). Iris brightens (#FBBF24) when speaking."
+        },
+        "eye_right": {
+          "g_id": "mzee-eye-right",
+          "parent": "head",
+          "description": "Same as left, mirrored.",
+          "animation": "Synced blinks with left"
+        },
+        "eyebrow_left": {
+          "g_id": "mzee-brow-left",
+          "parent": "head",
+          "element": "path",
+          "description": "Expressive arched eyebrow as SVG path.",
+          "animation": "Raises when speaking (path 'd' morph upward). Arches dramatically when celebrating."
+        },
+        "eyebrow_right": {
+          "g_id": "mzee-brow-right",
+          "parent": "head",
+          "element": "path",
+          "description": "Mirror of left eyebrow.",
+          "animation": "Same as left, slight delay"
+        },
+        "mouth": {
+          "g_id": "mzee-mouth",
+          "parent": "head",
+          "element": "path",
+          "description": "Subtle, wise mouth. Small gentle curve — he speaks through words, not exaggerated mouth movement. Stroke only, no fill.",
+          "animation": "Subtle path morph when speaking — slight open/close. Wider gentle smile on celebrate."
+        },
+        "beard": {
+          "g_id": "mzee-beard",
+          "parent": "head",
+          "description": "Long flowing white beard, extends from jawline down past chin. Multi-layered: outer beard (white, 92% opacity) and inner beard (#F5F5F5). 2 wispy strand details at bottom tips.",
+          "animation": "Multi-segment flowing motion — path 'd' morphing with staggered delays. Outer layer: 3.5s cycle. Inner layer: 3.5s cycle with 0.2s delay. Wisps: 3s cycle with 0.3–0.5s delays. Bounces more when celebrating."
+        },
+        "kofia": {
+          "g_id": "mzee-kofia",
+          "parent": "head",
+          "description": "Traditional kofia (cap) — teal (#14B8A6) with gold (#FACC15) horizontal band and 3 small gold dots along the band. Rounded dome shape sitting on top of head.",
+          "animation": "Extra-delayed secondary bounce (0.25s after head). Jaunty tilt on celebrate."
+        },
+        "staff": {
+          "g_id": "mzee-staff",
+          "description": "Tall wooden walking staff — dark wood (#8B6914) with lighter highlight line (#A07D1C). Runs from above head to ground level. Held by right hand.",
+          "animation": "Moves with body sway"
+        },
+        "staff_orb": {
+          "g_id": "mzee-staff-orb",
+          "parent": "staff",
+          "description": "Glowing teal (#14B8A6) orb at top of staff. Solid inner sphere (r=5) with soft radial gradient glow halo (r=8–10). Small white catchlight sparkle inside orb.",
+          "animation": "Pulsing glow — radius and opacity oscillate. Brightens significantly when speaking (orb is his 'magic'). Bursts with larger glow on celebrate."
+        },
+        "feet": {
+          "g_id": "mzee-feet",
+          "parent": "body",
+          "description": "Two dark indigo (#2D2A5E) sandal/shoe ellipses at base of robes.",
+          "animation": "Static — grounded elder"
+        }
+      },
+
+      "celebration_effects": {
+        "description": "6 teal magic rune/sparkle characters (✦) that orbit outward from the staff orb in a radial burst pattern, staggered delays",
+        "colors": ["#14B8A6"]
+      },
+
+      "speaking_effects": {
+        "description": "2–3 small teal circles that rise upward from the staff orb — representing wisdom/magic energy",
+        "colors": ["#14B8A6"]
+      }
+    },
+
+    {
+      "id": "shida",
+      "name": "Shida",
+      "emoji": "👾",
+      "role": "The Mischievous Bug-Creature — playful antagonist who corrupts code",
+      "personality": "Mischievous, chaotic, silly. A digital gremlin who trips over his own pranks. CRITICAL: Must be FUNNY, not scary. Kids should find Shida frustrating but endearing.",
+      "swahili_meaning": "'Shida' means 'trouble' or 'problem' in Swahili",
+
+      "viewBox": "0 0 120 120",
+
+      "visual_design": {
+        "species": "Blocky bug-creature. 8-bit/pixel-art inspired but with rounded edges so it's not threatening. Think cute ladybug crossed with a retro game enemy.",
+        "build": "Compact rectangular body with rounded corners. 6 small legs (3 per side). Two wiggly antennae.",
+        "pose": "Front-facing, slightly tilted (mischievous lean), floating/hovering (no ground contact)"
+      },
+
+      "colors": {
+        "body_primary": "#DC2626",
+        "body_outline": "#7F1D1D",
+        "body_highlight": "#FCA5A5",
+        "eye_left_sclera": "#1E1B4B",
+        "eye_left_iris": "#FBBF24",
+        "eye_left_pupil": "#1E1B4B",
+        "eye_right_sclera": "#1E1B4B",
+        "eye_right_iris": "#FBBF24",
+        "eye_right_pupil": "#1E1B4B",
+        "eye_catchlight": "white",
+        "mouth_stroke": "#1E1B4B",
+        "antenna_stalk": "#DC2626",
+        "antenna_orb": "#FBBF24",
+        "antenna_orb_glow": { "color": "#FBBF24", "opacity": 0.15 },
+        "legs": "#7F1D1D",
+        "leg_feet": "#991B1B",
+        "glitch_scanline": { "color": "#FCA5A5", "opacity": 0.4 },
+        "rgb_shift_blue": { "color": "#3B82F6", "opacity": 0.15 },
+        "rgb_shift_green": { "color": "#10B981", "opacity": 0.15 },
+        "aura": { "color": "#EF4444", "opacity": 0.3 },
+        "teeth": "white"
+      },
+
+      "body_parts": {
+        "aura_outer": {
+          "g_id": "shida-aura-outer",
+          "element": "ellipse",
+          "description": "Outer rotating dashed ellipse — like a radar ring. Red (#EF4444) at 30% opacity, stroke-dasharray='4 4'.",
+          "animation": "Continuous 360° rotation (8s cycle, linear ease)"
+        },
+        "aura_inner": {
+          "g_id": "shida-aura-inner",
+          "element": "ellipse",
+          "description": "Inner counter-rotating dashed ellipse — lighter red (#F87171) at 20% opacity, stroke-dasharray='2 6'. Slightly smaller than outer.",
+          "animation": "Continuous -360° rotation (12s cycle, linear ease). Counter-rotates against outer ring."
+        },
+        "body": {
+          "g_id": "shida-body",
+          "description": "Main body — rounded rectangle (rx=8). Dark maroon (#7F1D1D) outline rect with slightly inset red (#DC2626) fill rect. Thin blue (#3B82F6, 15% opacity) strip on left edge and green (#10B981, 15% opacity) strip on right edge for RGB-shift glitch effect.",
+          "animation": "Jittery erratic hovering — NOT smooth like the other characters. Quick, chaotic Y and X oscillation with slight rotation jitter (2s cycle). Squash/stretch on speaking and celebrating."
+        },
+        "scanline_1": {
+          "g_id": "shida-scanline-1",
+          "parent": "body",
+          "element": "rect",
+          "description": "Horizontal glitch scan-line stripe across upper body. Light red (#FCA5A5) at 40% opacity, 3px tall.",
+          "animation": "X position jitters left/right (simulates display glitch). Opacity flickers more aggressively when speaking."
+        },
+        "scanline_2": {
+          "g_id": "shida-scanline-2",
+          "parent": "body",
+          "element": "rect",
+          "description": "Second scan-line, middle of body. 2px tall, 25% opacity.",
+          "animation": "Same X jitter, different timing offset"
+        },
+        "scanline_3": {
+          "g_id": "shida-scanline-3",
+          "parent": "body",
+          "element": "rect",
+          "description": "Third scan-line, lower body. 2.5px tall, 30% opacity.",
+          "animation": "Same X jitter, third timing offset"
+        },
+        "eye_left": {
+          "g_id": "shida-eye-left",
+          "parent": "body",
+          "description": "LARGER eye (asymmetric — left is bigger than right). Circle r=8 dark sclera, r=6 golden yellow iris, r=2.5 dark pupil, small white catchlight. The bigger eye makes Shida look goofy, not menacing.",
+          "animation": "Periodic blink (scaleY). Pupil darts around shifty — different timing from right eye."
+        },
+        "eye_right": {
+          "g_id": "shida-eye-right",
+          "parent": "body",
+          "description": "SMALLER eye (r=6 sclera, r=4.5 iris, r=2 pupil). Positioned slightly higher than left eye to increase asymmetric goofiness.",
+          "animation": "Same blink timing as left, but pupil darts independently (0.15s delay offset)."
+        },
+        "mouth": {
+          "g_id": "shida-mouth",
+          "parent": "body",
+          "element": "path",
+          "description": "Wide zig-zag grin — like a jack-o-lantern but cute. 3 peaks in the zigzag pattern. Stroke only (#1E1B4B, 2.5px), no fill. NOT menacing — silly and mischievous.",
+          "animation": "Path 'd' morphing when speaking — opens/closes rapidly. Widens more when celebrating. Celebrating also reveals 3 small white rounded teeth rectangles (cute, not fangs)."
+        },
+        "antenna_left": {
+          "g_id": "shida-antenna-left",
+          "description": "Left antenna — line from top-left of body curving upward and left. Red (#DC2626) stalk (2.5px stroke), golden yellow (#FBBF24) orb at tip (r=4.5). Faint yellow glow circle behind orb (r=7, 15% opacity).",
+          "animation": "Wobbly independent bounce — position oscillates in both X and Y. Goes wild (faster, larger amplitude) when celebrating."
+        },
+        "antenna_right": {
+          "g_id": "shida-antenna-right",
+          "description": "Right antenna — mirrors left but curves upward and right. Same styling.",
+          "animation": "Same wobble but INDEPENDENT TIMING (different duration: 2.1s vs 1.8s for left). This makes the antennae look alive and uncoordinated — very Shida."
+        },
+        "legs": {
+          "g_id": "shida-legs",
+          "description": "6 small legs total — 3 on left side, 3 on right side of body, evenly spaced vertically. Each leg is a short line (3px stroke, maroon #7F1D1D) with a small circle foot (#991B1B, r=1.5) at the tip. Legs extend outward from body sides at slight downward angles.",
+          "animation": "Scuttling motion — each leg oscillates in X and Y with staggered delays (i * 0.15s). Left and right legs are offset by 0.08s. Scuttles FASTER when celebrating."
+        }
+      },
+
+      "celebration_effects": {
+        "description": "8 small pixel squares that burst radially outward from body center in all 8 compass directions. Alternating red (#EF4444) and yellow (#FBBF24). They spin (rotate 180°) as they fly out and fade to 0 opacity.",
+        "colors": ["#EF4444", "#FBBF24"]
+      },
+
+      "speaking_effects": {
+        "description": "3 small lightning-bolt/spark shapes that fly upward from near the head. Yellow (#FBBF24) stroke, no fill. Quick 0.8s cycle.",
+        "colors": ["#FBBF24"]
+      },
+
+      "glitch_particles": {
+        "description": "5 small floating pixel rectangles that continuously drift upward from the body and fade out. Alternating red shades (#EF4444, #F87171). Variable sizes (2–4px). Faster and more intense when speaking.",
+        "colors": ["#EF4444", "#F87171"]
+      }
+    }
+  ],
+
+  "prompt_instructions": "Generate three separate pure SVG code blocks — one for each character. Follow the viewBox, colors, body part grouping (with g id attributes), and structural requirements exactly. The SVGs will be embedded directly in React components and animated with Framer Motion. Keep shapes clean and paths simple. Prioritize charm and readability over realism."
+}

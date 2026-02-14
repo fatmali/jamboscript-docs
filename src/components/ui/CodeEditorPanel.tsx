@@ -1,11 +1,29 @@
 'use client';
 
-import { useRef, useCallback, useState, useEffect } from 'react';
+import { useRef, useCallback, useState, useEffect, useMemo } from 'react';
 import Editor, { OnMount } from '@monaco-editor/react';
 import { JAMBOSCRIPT_KEYWORDS } from '@/lib/jamboscript';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import type { editor } from 'monaco-editor';
+
+/** Reactive hook that tracks window width and updates on resize / orientation change */
+function useWindowWidth() {
+  const [width, setWidth] = useState(1024);
+
+  useEffect(() => {
+    const update = () => setWidth(window.innerWidth);
+    update(); // sync to actual width on mount
+    window.addEventListener('resize', update);
+    window.addEventListener('orientationchange', update);
+    return () => {
+      window.removeEventListener('resize', update);
+      window.removeEventListener('orientationchange', update);
+    };
+  }, []);
+
+  return width;
+}
 
 interface CodeEditorProps {
   value: string;
@@ -29,6 +47,22 @@ export default function CodeEditorPanel({
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const [showOutput, setShowOutput] = useState(false);
   const t = useTranslations('Editor');
+  const windowWidth = useWindowWidth();
+
+  // Reactive editor options that update on resize / orientation change
+  // Note: Keep fontSize >= 16 to prevent iOS Safari auto-zoom on input focus
+  const editorOptions = useMemo(() => ({
+    fontSize: 16,
+    lineHeight: windowWidth < 640 ? 22 : 28,
+    lineNumbers: (windowWidth < 480 ? 'off' : 'on') as editor.IStandaloneEditorConstructionOptions['lineNumbers'],
+    lineDecorationsWidth: windowWidth < 480 ? 4 : undefined,
+    lineNumbersMinChars: windowWidth < 640 ? 2 : 3,
+  }), [windowWidth]);
+
+  // Push reactive options to Monaco whenever they change
+  useEffect(() => {
+    editorRef.current?.updateOptions(editorOptions);
+  }, [editorOptions]);
 
   // Show output panel when there's output or error
   useEffect(() => {
@@ -194,48 +228,42 @@ export default function CodeEditorPanel({
     editor.focus();
   }, [onRun]);
 
+  const insertCode = (template: string) => {
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    // Use snippet controller for smart cursor placement and tab stops
+    const contribution = editor.getContribution('snippetController2');
+    if (contribution) {
+      // @ts-ignore - snippetController2 is standard but sometimes hidden in types
+      contribution.insert(template);
+      editor.focus();
+    }
+  };
+
+  const TOOLBOX_ITEMS = [
+    { label: 'acha', code: 'acha ${1:jina} = ${2:0};' },
+    { label: 'andika', code: 'andika("${1:ujumbe}");' },
+    { label: 'kama', code: 'kama (${1:sharti}) {\n\t$0\n}' },
+    { label: 'rudia', code: 'rudia (acha i=0; i chini ${1:5}; i++) {\n\t$0\n}' },
+    { label: 'kweli', code: 'kweli' },
+    { label: 'sivyo', code: 'sivyo' },
+  ];
+
   return (
     <div className="h-full flex flex-col bg-bg-deep">
-      {/* Editor Header */}
-      <div className="flex items-center justify-between px-3 py-2 bg-bg-card/50 border-b border-white/5">
-        <div className="flex items-center gap-2">
-          <div className="flex gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-error/60" />
-            <div className="w-3 h-3 rounded-full bg-warning/60" />
-            <div className="w-3 h-3 rounded-full bg-success/60" />
-          </div>
-          <span className="text-xs text-text-muted font-mono ml-2">{t('fileName')}</span>
-        </div>
-
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={onRun}
-          disabled={isRunning || solved}
-          className={`px-4 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all ${
-            solved
-              ? 'bg-success/20 text-success cursor-default'
-              : isRunning
-              ? 'bg-secondary/20 text-secondary cursor-wait'
-              : 'bg-secondary text-primary hover:bg-secondary-dark'
-          }`}
-        >
-          {solved ? (
-            <>{t('success')}</>
-          ) : isRunning ? (
-            <>
-              <motion.span
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-              >
-                ⚡
-              </motion.span>
-              {t('running')}
-            </>
-          ) : (
-            <>{t('run')}</>
-          )}
-        </motion.button>
+      {/* Code Toolbox for Kids */}
+      <div className="flex gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-bg-deep border-b border-white/5 overflow-x-auto scrollbar-none">
+         {TOOLBOX_ITEMS.map((item) => (
+           <button
+             key={item.label}
+             onClick={() => insertCode(item.code)}
+             className="px-2.5 sm:px-3 py-1.5 sm:py-1 rounded-md bg-white/5 hover:bg-white/10 text-[11px] sm:text-xs font-mono text-emerald-400 border border-white/5 transition-colors whitespace-nowrap min-h-[36px] sm:min-h-0"
+             title={`Insert ${item.label}`}
+           >
+             {item.label}
+           </button>
+         ))}
       </div>
 
       {/* Monaco Editor */}
@@ -249,14 +277,14 @@ export default function CodeEditorPanel({
           onMount={handleEditorMount}
           theme="jamboscript-dark"
           options={{
-            fontSize: 14,
+            fontSize: editorOptions.fontSize,
             fontFamily: 'var(--font-jetbrains-mono), JetBrains Mono, monospace',
-            lineHeight: 22,
+            lineHeight: editorOptions.lineHeight,
             minimap: { enabled: false },
             scrollBeyondLastLine: false,
             renderLineHighlight: 'line',
             roundedSelection: true,
-            padding: { top: 12, bottom: 12 },
+            padding: { top: 8, bottom: 8 },
             suggest: {
               showKeywords: true,
               showSnippets: true,
@@ -268,13 +296,15 @@ export default function CodeEditorPanel({
             autoClosingBrackets: 'always',
             autoClosingQuotes: 'always',
             formatOnPaste: true,
-            lineNumbers: 'on',
+            lineNumbers: editorOptions.lineNumbers,
             folding: false,
             glyphMargin: false,
             overviewRulerLanes: 0,
             hideCursorInOverviewRuler: true,
             overviewRulerBorder: false,
             contextmenu: false,
+            lineDecorationsWidth: editorOptions.lineDecorationsWidth,
+            lineNumbersMinChars: editorOptions.lineNumbersMinChars,
           }}
           loading={
             <div className="h-full flex items-center justify-center bg-bg-deep">
@@ -298,18 +328,18 @@ export default function CodeEditorPanel({
           transition={{ duration: 0.2 }}
           className="border-t border-white/5 bg-bg-deep"
         >
-          <div className="flex items-center justify-between px-3 py-1.5 bg-bg-card/30">
-            <span className="text-xs text-text-muted font-mono">
+          <div className="flex items-center justify-between px-2 sm:px-3 py-1 sm:py-1.5 bg-bg-card/30">
+            <span className="text-[10px] sm:text-xs text-text-muted font-mono">
               {error ? t('outputError') : t('output')}
             </span>
             <button
               onClick={() => setShowOutput(false)}
-              className="text-text-muted hover:text-text-primary text-xs"
+              className="text-text-muted hover:text-text-primary text-[10px] sm:text-xs p-1"
             >
               ✕
             </button>
           </div>
-          <div className="px-3 py-2 max-h-24 overflow-y-auto font-mono text-xs">
+          <div className="px-2 sm:px-3 py-1.5 sm:py-2 max-h-28 sm:max-h-32 overflow-y-auto font-mono text-[11px] sm:text-xs">
             {output.map((line, i) => (
               <div key={i} className="text-accent-light">{line}</div>
             ))}
@@ -322,6 +352,39 @@ export default function CodeEditorPanel({
           </div>
         </motion.div>
       )}
+
+      {/* Run Button — always at the bottom */}
+      <div className="flex items-center justify-center px-3 py-2 bg-bg-card/50 border-t border-white/5">
+        <motion.button
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
+          onClick={onRun}
+          disabled={isRunning || solved}
+          className={`w-full max-w-xs px-4 py-2.5 rounded-full text-sm font-bold flex items-center justify-center gap-2 transition-all min-h-[44px] ${
+            solved
+              ? 'bg-success/20 text-success cursor-default'
+              : isRunning
+              ? 'bg-secondary/20 text-secondary cursor-wait'
+              : 'bg-secondary text-primary hover:bg-secondary-dark shadow-md shadow-secondary/20'
+          }`}
+        >
+          {solved ? (
+            <>{t('success')}</>
+          ) : isRunning ? (
+            <>
+              <motion.span
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+              >
+                ⚡
+              </motion.span>
+              {t('running')}
+            </>
+          ) : (
+            <>{t('run')}</>
+          )}
+        </motion.button>
+      </div>
     </div>
   );
 }

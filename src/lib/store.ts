@@ -6,14 +6,18 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { ChapterProgress, PlayerProfile } from './types';
+import { useEffect, useState } from 'react';
 import { ExecutionResult } from './jamboscript';
 
 export interface GameState {
   // Player profile
   player: PlayerProfile;
 
-  // Sound
+  // Sound & music
   soundEnabled: boolean;
+
+  // Narration (TTS)
+  narrationEnabled: boolean;
 
   // Per-chapter progress
   chapters: Record<string, ChapterProgress>;
@@ -21,9 +25,16 @@ export interface GameState {
   // Dialogue advancement per chapter
   dialogueIndex: Record<string, number>;
 
+  // Story variables that persist across chapters (e.g. player's chosen name)
+  storyVariables: Record<string, string | number | boolean>;
+
+  // Whether we are showing the outro for a chapter
+  showingOutro: Record<string, boolean>;
+
   // Actions
   setPlayerName: (name: string) => void;
   setSoundEnabled: (enabled: boolean) => void;
+  setNarrationEnabled: (enabled: boolean) => void;
 
   // Chapter progress
   getChapterProgress: (slug: string) => ChapterProgress;
@@ -44,6 +55,14 @@ export interface GameState {
   advanceDialogue: (slug: string) => void;
   resetDialogue: (slug: string) => void;
   getDialogueIndex: (slug: string) => number;
+
+  // Story variables (persist across chapters)
+  setStoryVariable: (key: string, value: string | number | boolean) => void;
+  getStoryVariable: (key: string) => string | number | boolean | undefined;
+
+  // Outro management
+  setShowingOutro: (slug: string, showing: boolean) => void;
+  isShowingOutro: (slug: string) => boolean;
 
   // Full reset
   resetGame: () => void;
@@ -69,8 +88,11 @@ export const useGameStore = create<GameState>()(
     (set, get) => ({
       player: { ...defaultPlayer },
       soundEnabled: true,
+      narrationEnabled: false,
       chapters: {},
       dialogueIndex: {},
+      storyVariables: {},
+      showingOutro: {},
 
       setPlayerName: (name) =>
         set((state) => ({
@@ -78,6 +100,8 @@ export const useGameStore = create<GameState>()(
         })),
 
       setSoundEnabled: (enabled) => set({ soundEnabled: enabled }),
+
+      setNarrationEnabled: (enabled) => set({ narrationEnabled: enabled }),
 
       getChapterProgress: (slug) => {
         return get().chapters[slug] || { ...defaultChapterProgress };
@@ -205,11 +229,28 @@ export const useGameStore = create<GameState>()(
 
       getDialogueIndex: (slug) => get().dialogueIndex[slug] || 0,
 
+      setStoryVariable: (key, value) =>
+        set((state) => ({
+          storyVariables: { ...state.storyVariables, [key]: value },
+        })),
+
+      getStoryVariable: (key) => get().storyVariables[key],
+
+      setShowingOutro: (slug, showing) =>
+        set((state) => ({
+          showingOutro: { ...state.showingOutro, [slug]: showing },
+        })),
+
+      isShowingOutro: (slug) => get().showingOutro[slug] || false,
+
       resetGame: () =>
         set({
           player: { ...defaultPlayer },
           chapters: {},
           dialogueIndex: {},
+          storyVariables: {},
+          showingOutro: {},
+          narrationEnabled: false,
         }),
     }),
     {
@@ -218,3 +259,22 @@ export const useGameStore = create<GameState>()(
     }
   )
 );
+
+/**
+ * Returns `true` once the Zustand persist store has rehydrated from
+ * localStorage on the client.  During SSR and the very first client
+ * render this returns `false`, so components can fall back to safe
+ * defaults and avoid a hydration mismatch.
+ */
+export function useStoreHydrated() {
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    // `onFinishHydration` fires once the persisted state has been
+    // read from storage and merged into the store.
+    const unsub = useGameStore.persist.onFinishHydration(() => setHydrated(true));
+    // If rehydration already happened before this effect ran:
+    if (useGameStore.persist.hasHydrated()) setHydrated(true);
+    return unsub;
+  }, []);
+  return hydrated;
+}

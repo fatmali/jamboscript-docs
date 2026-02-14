@@ -1,9 +1,24 @@
 /**
- * Chapter Data — The JamboScript Story Curriculum
- * Each chapter is a self-contained story + coding challenge.
+ * Chapter Data — The JamboScript Story
  *
- * All user-facing strings are translation keys resolved via next-intl.
- * Keys live under "Chapters" namespace, e.g. "ch1.title" → Chapters.ch1.title
+ * THE ADVENTURE: Save the Magic Tree! 🌳🐛
+ * ─────────────────────────────────────────
+ * 6 short chapters — one new trick per chapter.
+ * Designed for 8-year-olds: lots of scaffolding, fill-in-the-blank,
+ * generous validation, and short puzzles.
+ *
+ *   Ch1:  andika (say things)       — say magic words to open the locked gate
+ *   Ch2:  acha (remember things)    — tell the old man your name
+ *   Ch3:  kama (make choices)       — pick the right path (fill in one blank)
+ *   Ch4:  rudia (repeat things)     — walk across the bridge (fill in the number)
+ *   Ch5:  kazi (make recipes)       — create a healing spell (fill in the recipe)
+ *   Ch6:  grand finale              — throw a party using everything! (heavily scaffolded)
+ *
+ * DIFFICULTY:
+ *   guided     — almost done, fill in one blank (Ch1-4)
+ *   scaffolded — half done, kid writes the important part (Ch5-6)
+ *
+ * Text keys use next-intl: "ch1.title" → Chapters.ch1.title
  */
 
 import { ChapterData } from '@/lib/types';
@@ -16,16 +31,19 @@ export const chapters: ChapterData[] = [
     number: 1,
     title: 'ch1.title',
     subtitle: 'ch1.subtitle',
-    concept: 'Commands & Output (andika)',
+    concept: 'Say Things (andika)',
     character: 'kito',
     scene: 'village',
     maxStars: 3,
     isFree: true,
     prevChapter: null,
     nextChapter: 'sura-2',
+    difficulty: 'guided',
+    questHook: 'ch1.questHook',
     dialogues: [
-      { speaker: 'kito', text: 'ch1.d1' },
+      { speaker: 'narrator', text: 'ch1.d1' },
       { speaker: 'kito', text: 'ch1.d2' },
+      { speaker: 'shida', text: 'ch1.d2b' },
       {
         speaker: 'kito',
         text: 'ch1.d3',
@@ -33,6 +51,10 @@ export const chapters: ChapterData[] = [
         codeExample: 'andika("Fungua lango!")',
       },
       { speaker: 'kito', text: 'ch1.d4' },
+    ],
+    outroDialogues: [
+      { speaker: 'narrator', text: 'ch1.outro1' },
+      { speaker: 'kito', text: 'ch1.outro2' },
     ],
     puzzle: {
       id: 'ch1-gate',
@@ -60,15 +82,17 @@ export const chapters: ChapterData[] = [
     number: 2,
     title: 'ch2.title',
     subtitle: 'ch2.subtitle',
-    concept: 'Variables (acha)',
+    concept: 'Remember Things (acha)',
     character: 'kito',
     scene: 'village',
     maxStars: 3,
     isFree: true,
     prevChapter: 'sura-1',
     nextChapter: 'sura-3',
+    difficulty: 'guided',
+    questHook: 'ch2.questHook',
     dialogues: [
-      { speaker: 'kito', text: 'ch2.d1' },
+      { speaker: 'narrator', text: 'ch2.d1' },
       { speaker: 'kito', text: 'ch2.d2' },
       {
         speaker: 'kito',
@@ -77,6 +101,11 @@ export const chapters: ChapterData[] = [
         codeExample: 'acha jina = "Amani"\nandika(jina)',
       },
       { speaker: 'kito', text: 'ch2.d4' },
+    ],
+    outroDialogues: [
+      { speaker: 'narrator', text: 'ch2.outro1' },
+      { speaker: 'shida', text: 'ch2.outro2' },
+      { speaker: 'kito', text: 'ch2.outro3' },
     ],
     puzzle: {
       id: 'ch2-naming',
@@ -99,37 +128,44 @@ export const chapters: ChapterData[] = [
     },
   },
 
-  // ─── Chapter 3: Conditionals ────────────────────────────────────
+  // ─── Chapter 3: Conditionals (GUIDED) ──────────────────────────
   {
     id: 'ch3',
     slug: 'sura-3',
     number: 3,
     title: 'ch3.title',
     subtitle: 'ch3.subtitle',
-    concept: 'Conditionals (kama / la sivyo)',
+    concept: 'Make Choices (kama)',
     character: 'mzee_byte',
     scene: 'forest',
     maxStars: 3,
     isFree: true,
     prevChapter: 'sura-2',
     nextChapter: 'sura-4',
+    difficulty: 'guided',
+    questHook: 'ch3.questHook',
     dialogues: [
-      { speaker: 'mzee_byte', text: 'ch3.d1' },
+      { speaker: 'narrator', text: 'ch3.d1' },
+      { speaker: 'shida', text: 'ch3.d1b' },
       { speaker: 'mzee_byte', text: 'ch3.d2' },
       {
         speaker: 'mzee_byte',
         text: 'ch3.d3',
         showCodeHint: true,
-        codeExample: 'kama (hewa ni "mvua") {\n  acha njia = "pango"\n} la sivyo {\n  acha njia = "mto"\n}',
+        codeExample: 'kama (hewa ni "mvua") {\n  andika("Nenda pangoni!")\n}',
       },
       { speaker: 'mzee_byte', text: 'ch3.d4' },
+    ],
+    outroDialogues: [
+      { speaker: 'narrator', text: 'ch3.outro1' },
+      { speaker: 'mzee_byte', text: 'ch3.outro2' },
     ],
     puzzle: {
       id: 'ch3-conditional',
       starterCode: 'ch3.starterCode',
       task: 'ch3.task',
       riddle: 'ch3.riddle',
-      contextCode: 'let hewa = Math.random() > 0.5 ? "mvua" : "jua";\n',
+      contextCode: 'let hewa = "mvua";\n',
       hints: [
         { id: 'h1', text: 'ch3.hint1', starCost: 0 },
         { id: 'h2', text: 'ch3.hint2', starCost: 1 },
@@ -137,40 +173,44 @@ export const chapters: ChapterData[] = [
       ],
       validate: (result) => {
         if (!result.success) return result.error || 'ch3.errorGeneric';
-        const njia = result.variables['njia'];
-        if (!njia) return 'ch3.errorNoPath';
-        if (njia !== 'pango' && njia !== 'mto') {
-          return 'ch3.errorInvalidPath';
-        }
+        if (result.output.length === 0) return 'ch3.errorNoOutput';
         return null;
       },
     },
   },
 
-  // ─── Chapter 4: Loops ──────────────────────────────────────────
+  // ─── Chapter 4: Loops (GUIDED) ─────────────────────────────────
   {
     id: 'ch4',
     slug: 'sura-4',
     number: 4,
     title: 'ch4.title',
     subtitle: 'ch4.subtitle',
-    concept: 'Loops (rudia / wakati)',
+    concept: 'Repeat Things (rudia)',
     character: 'mzee_byte',
     scene: 'bridge',
     maxStars: 3,
     isFree: true,
     prevChapter: 'sura-3',
     nextChapter: 'sura-5',
+    difficulty: 'guided',
+    questHook: 'ch4.questHook',
     dialogues: [
-      { speaker: 'mzee_byte', text: 'ch4.d1' },
+      { speaker: 'narrator', text: 'ch4.d1' },
+      { speaker: 'shida', text: 'ch4.d1b' },
       { speaker: 'mzee_byte', text: 'ch4.d2' },
       {
         speaker: 'mzee_byte',
         text: 'ch4.d3',
         showCodeHint: true,
-        codeExample: 'acha hatua = 0\nrudia (acha i = 0; i chini 5; i++) {\n  hatua = hatua + 1\n}',
+        codeExample: 'rudia (acha i = 0; i chini 5; i++) {\n  andika("Hatua!")\n}',
       },
       { speaker: 'mzee_byte', text: 'ch4.d4' },
+    ],
+    outroDialogues: [
+      { speaker: 'narrator', text: 'ch4.outro1' },
+      { speaker: 'mzee_byte', text: 'ch4.outro2' },
+      { speaker: 'shida', text: 'ch4.outro3' },
     ],
     puzzle: {
       id: 'ch4-loop',
@@ -184,40 +224,46 @@ export const chapters: ChapterData[] = [
       ],
       validate: (result) => {
         if (!result.success) return result.error || 'ch4.errorGeneric';
-        const hatua = result.variables['hatua'];
-        if (hatua === undefined) return 'ch4.errorNoVar';
-        if (typeof hatua === 'number' && hatua === 5) return null;
-        if (typeof hatua === 'number' && hatua > 5) return 'ch4.errorTooMany';
-        if (typeof hatua === 'number' && hatua < 5) return 'ch4.errorTooFew';
-        return 'ch4.errorNotNumber';
+        if (result.output.length === 0) return 'ch4.errorNoOutput';
+        if (result.output.length < 5) return 'ch4.errorTooFew';
+        if (result.output.length > 10) return 'ch4.errorTooMany';
+        return null;
       },
     },
   },
 
-  // ─── Chapter 5: Functions ──────────────────────────────────────
+  // ─── Chapter 5: Functions (SCAFFOLDED) ─────────────────────────
   {
     id: 'ch5',
     slug: 'sura-5',
     number: 5,
     title: 'ch5.title',
     subtitle: 'ch5.subtitle',
-    concept: 'Functions (kazi / rudisha)',
+    concept: 'Make Recipes (kazi)',
     character: 'kito',
     scene: 'mountain',
     maxStars: 3,
     isFree: true,
     prevChapter: 'sura-4',
-    nextChapter: null,
+    nextChapter: 'sura-6',
+    difficulty: 'scaffolded',
+    questHook: 'ch5.questHook',
     dialogues: [
-      { speaker: 'kito', text: 'ch5.d1' },
+      { speaker: 'narrator', text: 'ch5.d1' },
       { speaker: 'kito', text: 'ch5.d2' },
       {
         speaker: 'kito',
         text: 'ch5.d3',
         showCodeHint: true,
-        codeExample: 'kazi maraMbili(n) {\n  rudisha n * 2\n}\n\nandika(maraMbili(7))',
+        codeExample: 'kazi ponyaMti() {\n  andika("Mti, pona!")\n}\n\nponyaMti()',
       },
       { speaker: 'kito', text: 'ch5.d4' },
+    ],
+    outroDialogues: [
+      { speaker: 'narrator', text: 'ch5.outro1' },
+      { speaker: 'kito', text: 'ch5.outro2' },
+      { speaker: 'shida', text: 'ch5.outro3' },
+      { speaker: 'narrator', text: 'ch5.outro4' },
     ],
     puzzle: {
       id: 'ch5-function',
@@ -231,10 +277,62 @@ export const chapters: ChapterData[] = [
       ],
       validate: (result) => {
         if (!result.success) return result.error || 'ch5.errorGeneric';
-        const jibu = result.variables['jibu'];
-        if (jibu === undefined) return 'ch5.errorNoVar';
-        if (jibu === 14) return null;
-        return 'ch5.errorWrongAnswer';
+        if (result.output.length === 0) return 'ch5.errorNoOutput';
+        return null;
+      },
+    },
+  },
+
+  // ─── Chapter 6: Grand Finale (SCAFFOLDED) ──────────────────────
+  {
+    id: 'ch6',
+    slug: 'sura-6',
+    number: 6,
+    title: 'ch6.title',
+    subtitle: 'ch6.subtitle',
+    concept: 'Everything Together! 🎉',
+    character: 'kito',
+    scene: 'celebration',
+    maxStars: 3,
+    isFree: true,
+    prevChapter: 'sura-5',
+    nextChapter: null,
+    difficulty: 'scaffolded',
+    questHook: 'ch6.questHook',
+    dialogues: [
+      { speaker: 'narrator', text: 'ch6.d1' },
+      { speaker: 'shida', text: 'ch6.d2' },
+      { speaker: 'kito', text: 'ch6.d3' },
+      {
+        speaker: 'kito',
+        text: 'ch6.d4',
+        showCodeHint: true,
+        codeExample: 'acha mgeni = "Kito"\nandika("Karibu " + mgeni + "!")',
+      },
+      { speaker: 'kito', text: 'ch6.d5' },
+    ],
+    outroDialogues: [
+      { speaker: 'narrator', text: 'ch6.outro1' },
+      { speaker: 'kito', text: 'ch6.outro2' },
+      { speaker: 'shida', text: 'ch6.outro3' },
+      { speaker: 'narrator', text: 'ch6.outro4' },
+    ],
+    puzzle: {
+      id: 'ch6-finale',
+      starterCode: 'ch6.starterCode',
+      task: 'ch6.task',
+      riddle: 'ch6.riddle',
+      hints: [
+        { id: 'h1', text: 'ch6.hint1', starCost: 0 },
+        { id: 'h2', text: 'ch6.hint2', starCost: 1 },
+        { id: 'h3', text: 'ch6.hint3', starCost: 1 },
+      ],
+      validate: (result) => {
+        if (!result.success) return result.error || 'ch6.errorGeneric';
+        if (result.output.length === 0) return 'ch6.errorNoOutput';
+        const hasKaribu = result.output.some(line => line.toLowerCase().includes('karibu'));
+        if (!hasKaribu) return 'ch6.errorNoKaribu';
+        return null;
       },
     },
   },

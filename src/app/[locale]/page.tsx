@@ -2,13 +2,14 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useGameStore } from '@/lib/store';
+import { useGameStore, useStoreHydrated } from '@/lib/store';
 import { initAudio } from '@/lib/sound';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import { Link } from '@/i18n/navigation';
 import KitoCharacter from '@/components/characters/KitoCharacter';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+import { useReducedMotion } from '@/lib/useReducedMotion';
 
 function seededRandom(seed: number) {
   const x = Math.sin(seed) * 10000;
@@ -18,9 +19,11 @@ function seededRandom(seed: number) {
 export default function LandingPage() {
   const router = useRouter();
   const { player } = useGameStore();
+  const hydrated = useStoreHydrated();
   const [showContent, setShowContent] = useState(false);
   const [showCTA, setShowCTA] = useState(false);
   const t = useTranslations('Landing');
+  const reduced = useReducedMotion();
 
   const stars = useMemo(
     () =>
@@ -49,9 +52,9 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-bg-deep relative overflow-hidden flex flex-col items-center justify-center">
-      {/* Language Switcher */}
-      <div className="absolute top-4 right-4 z-20">
+    <div className="min-h-[100dvh] bg-bg-deep relative overflow-hidden flex flex-col items-center justify-center px-4">
+      {/* Language Switcher — safe inset on mobile */}
+      <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20">
         <LanguageSwitcher />
       </div>
 
@@ -78,7 +81,7 @@ export default function LandingPage() {
       <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
 
       {/* Main content */}
-      <div className="relative z-10 text-center px-6 max-w-2xl">
+      <div className="relative z-10 text-center max-w-2xl w-full">
         {/* Kito character */}
         <AnimatePresence>
           {showContent && (
@@ -127,7 +130,7 @@ export default function LandingPage() {
                 onClick={handleStart}
                 className="glow-button px-10 py-4 text-lg sm:text-xl animate-pulse-glow"
               >
-                {player.chaptersCompleted > 0 ? t('continueSafari') : t('startSafari')}
+                {hydrated && player.chaptersCompleted > 0 ? t('continueSafari') : t('startSafari')}
               </button>
 
               <motion.p
@@ -147,14 +150,16 @@ export default function LandingPage() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.3 }}
-        className="absolute bottom-6 flex gap-6 text-xs text-text-muted"
-      >
-        <Link href="/cheza" className="hover:text-secondary transition-colors">
+        transition={{ delay: reduced ? 0 : 1.3 }}
+        className="relative z-10 mt-8 pb-6 safe-bottom flex flex-wrap justify-center gap-4 sm:gap-6 text-xs text-text-muted">
+        <Link href="/cheza" className="hover:text-secondary transition-colors py-2 px-3 min-h-[44px] flex items-center">
           {t('playgroundLink')}
         </Link>
-        <Link href="/mzazi" className="hover:text-accent transition-colors">
+        <Link href="/mzazi" className="hover:text-accent transition-colors py-2 px-3 min-h-[44px] flex items-center">
           {t('parentsLink')}
+        </Link>
+        <Link href="/mzazi/faragha" className="hover:text-text-secondary transition-colors py-2 px-3 min-h-[44px] flex items-center">
+          🔒 {t('privacyLink')}
         </Link>
       </motion.div>
     </div>
