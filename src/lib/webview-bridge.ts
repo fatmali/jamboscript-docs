@@ -26,6 +26,7 @@ export interface NativeAppMessage {
     | 'progress'
     | 'challenge_complete'
     | 'chapter_complete'
+    | 'haptic'
     | 'error';
   payload?: unknown;
 }
@@ -38,6 +39,7 @@ const ALLOWED_MESSAGE_TYPES = new Set([
   'progress',
   'challenge_complete',
   'chapter_complete',
+  'haptic',
   'error',
 ]);
 

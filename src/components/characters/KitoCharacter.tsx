@@ -30,7 +30,7 @@ export default function KitoCharacter({ speaking = false, celebrating = false }:
     <motion.div
       className="relative w-full h-full"
       animate={celebrating ? { scale: [1, 1.04, 1] } : {}}
-      transition={celebrating ? { ...springBouncy, stiffness: 120 } : {}}
+      transition={celebrating ? { duration: 0.6, ease: "easeInOut" } : {}}
     >
       <svg
         viewBox="0 0 120 120"
@@ -38,15 +38,15 @@ export default function KitoCharacter({ speaking = false, celebrating = false }:
         style={{ filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.25))' }}
       >
         <defs>
-          <radialGradient id="k-shell" cx="40%" cy="30%" r="70%">
+          <radialGradient id="k-shell-gradient" cx="40%" cy="30%" r="70%" gradientUnits="userSpaceOnUse">
             <stop offset="0%" stopColor={C.shellLight} />
             <stop offset="100%" stopColor={C.shellDark} />
           </radialGradient>
-          <linearGradient id="k-skin" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id="k-skin-gradient" x1="0%" y1="0%" x2="100%" y2="100%" gradientUnits="userSpaceOnUse">
             <stop offset="0%" stopColor={C.skinLight} />
             <stop offset="100%" stopColor={C.skin} />
           </linearGradient>
-          <linearGradient id="k-belly" x1="0%" y1="0%" x2="0%" y2="100%">
+          <linearGradient id="k-belly-gradient" x1="0%" y1="0%" x2="0%" y2="100%" gradientUnits="userSpaceOnUse">
             <stop offset="0%" stopColor={C.belly} />
             <stop offset="100%" stopColor={C.bellyDark} />
           </linearGradient>
@@ -67,33 +67,36 @@ export default function KitoCharacter({ speaking = false, celebrating = false }:
             transition={celebrating ? loopSmooth(0.5) : idleLoop(speaking ? 1.2 : 3.5, 0.15)}
             style={{ transformOrigin: '38px 82px' }}
           >
-            <ellipse cx="28" cy="82" rx="8" ry="5" fill="url(#k-skin)" stroke={C.stroke} {...SVG_DEFAULTS} strokeWidth={1.5} />
+            <ellipse cx="28" cy="82" rx="8" ry="5" fill="url(#k-skin-gradient)" stroke={C.stroke} {...SVG_DEFAULTS} strokeWidth={1.5} />
           </motion.g>
 
           {/* Back legs — subtle alternating shift */}
-          <motion.ellipse cx="42" cy="92" rx="9" ry="6"
-            fill={C.skinDark} stroke={C.stroke} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"
+          <motion.ellipse cx="40" cy="92" rx="9" ry="6"
+            fill="url(#k-skin-gradient)" stroke={C.stroke} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"
             animate={{ x: [0, -0.5, 0] }}
             transition={idleLoop(4, 0.3)}
           />
-          <motion.ellipse cx="78" cy="92" rx="9" ry="6"
-            fill={C.skinDark} stroke={C.stroke} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"
+          <motion.ellipse cx="80" cy="92" rx="9" ry="6"
+            fill="url(#k-skin-gradient)" stroke={C.stroke} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"
             animate={{ x: [0, 0.5, 0] }}
             transition={idleLoop(4, 0.6)}
           />
 
-          {/* Front legs */}
+          {/* Front legs - Arms */}
           <motion.g
             animate={{ rotate: celebrating ? [-6, 6, -6] : [0, 1.5, 0, -1.5, 0] }}
             transition={celebrating ? loopSmooth(0.6) : idleLoop(5)}
-            style={{ transformOrigin: '60px 90px' }}
+            style={{ transformOrigin: '60px 85px' }}
           >
-            <ellipse cx="34" cy="95" rx="10" ry="7" fill="url(#k-skin)" stroke={C.stroke} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
-            <ellipse cx="86" cy="95" rx="10" ry="7" fill="url(#k-skin)" stroke={C.stroke} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+            {/* Left arm */}
+            <ellipse cx="32" cy="80" rx="12" ry="8" fill="url(#k-skin-gradient)" stroke={C.stroke} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" transform="rotate(-15, 32, 80)" />
+            
+            {/* Right arm */}
+            <ellipse cx="88" cy="80" rx="12" ry="8" fill="url(#k-skin-gradient)" stroke={C.stroke} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" transform="rotate(15, 88, 80)" />
           </motion.g>
 
           {/* Shell — main body */}
-          <ellipse cx="60" cy="72" rx="32" ry="24" fill="url(#k-shell)" stroke={C.stroke} {...SVG_DEFAULTS} />
+          <ellipse cx="60" cy="72" rx="36" ry="28" fill="url(#k-shell-gradient)" stroke={C.stroke} {...SVG_DEFAULTS} />
 
           {/* Kanga diamond pattern on shell — gold accents */}
           <g opacity="0.7">
@@ -107,7 +110,7 @@ export default function KitoCharacter({ speaking = false, celebrating = false }:
           <path d="M38,58 Q60,48 82,58" fill="none" stroke="white" strokeWidth={1} opacity="0.2" strokeLinecap="round" />
 
           {/* Belly plate */}
-          <ellipse cx="60" cy="78" rx="16" ry="12" fill="url(#k-belly)" opacity="0.5" />
+          <ellipse cx="60" cy="78" rx="16" ry="12" fill="url(#k-belly-gradient)" opacity="0.5" />
 
           {/* ── HEAD — overlapping delay from body ── */}
           <motion.g
@@ -119,10 +122,10 @@ export default function KitoCharacter({ speaking = false, celebrating = false }:
             style={{ transformOrigin: '60px 55px' }}
           >
             {/* Neck */}
-            <rect x="52" y="48" width="16" height="14" rx="6" fill="url(#k-skin)" />
+            <rect x="52" y="48" width="16" height="14" rx="6" fill="url(#k-skin-gradient)" />
 
             {/* Head shape — large, round, chibi */}
-            <ellipse cx="60" cy="38" rx="18" ry="16" fill="url(#k-skin)" stroke={C.stroke} {...SVG_DEFAULTS} />
+            <ellipse cx="60" cy="38" rx="18" ry="16" fill="url(#k-skin-gradient)" stroke={C.stroke} {...SVG_DEFAULTS} />
 
             {/* Cheek blush */}
             <circle cx="46" cy="42" r="4" fill="#F9A8D4" opacity="0.25" />

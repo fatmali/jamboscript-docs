@@ -8,8 +8,10 @@ import { startMusic, stopMusic } from '@/lib/music';
 import { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations } from 'next-intl';
+import { hapticLight } from '@/lib/haptics';
 import { Link } from '@/i18n/navigation';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+import { ChevronLeft, Volume2, VolumeX, Mic, MicOff, Settings } from 'lucide-react';
 
 interface TopBarProps {
   chapter?: ChapterData;
@@ -76,7 +78,7 @@ export default function TopBar({ chapter, totalChapters = 10, showStoryButton, o
       initial={{ y: -60, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
-      className="flex items-center justify-between px-2 sm:px-4 py-2 sm:py-3 bg-bg-card/60 backdrop-blur-md border-b border-white/5 z-50"
+      className="flex items-center justify-between px-2 sm:px-4 py-2 sm:py-3 bg-bg-card/60 backdrop-blur-md border-b border-white/5 z-50 safe-area-top"
     >
       {/* Left: Back + Story toggle */}
       <div className="flex items-center gap-1.5 sm:gap-3">
@@ -84,22 +86,17 @@ export default function TopBar({ chapter, totalChapters = 10, showStoryButton, o
           href="/hadithi"
           className="flex items-center gap-1.5 sm:gap-2 text-text-secondary hover:text-secondary transition-colors"
         >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path
-              d="M12 15L7 10L12 5"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <ChevronLeft size={20} />
           <span className="text-sm font-semibold hidden sm:inline">{t('map')}</span>
         </Link>
 
         {/* Mobile story toggle — sits naturally in the TopBar */}
         {showStoryButton && (
           <button
-            onClick={onStoryToggle}
+            onClick={() => {
+              hapticLight();
+              onStoryToggle?.();
+            }}
             className="lg:hidden flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-secondary/15 text-secondary hover:bg-secondary/25 transition-all text-xs font-bold min-h-[36px]"
           >
             <span>📖</span>
@@ -153,28 +150,22 @@ export default function TopBar({ chapter, totalChapters = 10, showStoryButton, o
           <LanguageSwitcher />
           {/* Sound Toggle */}
           <button
-            onClick={toggleSound}
+            onClick={() => {
+              hapticLight();
+              toggleSound();
+            }}
             className="w-9 h-9 flex items-center justify-center rounded-full bg-bg-surface/50 hover:bg-bg-surface text-text-secondary hover:text-text-primary transition-all"
             aria-label={soundEnabled ? t('muteSound') : t('enableSound')}
             title={soundEnabled ? t('muteSound') : t('enableSound')}
           >
-            {soundEnabled ? (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path d="M11 5L6 9H2v6h4l5 4V5z" fill="currentColor" opacity="0.3" />
-                <path d="M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            ) : (
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path d="M11 5L6 9H2v6h4l5 4V5z" fill="currentColor" opacity="0.2" />
-                <path d="M11 5L6 9H2v6h4l5 4V5z" stroke="currentColor" strokeWidth="2" />
-                <line x1="23" y1="9" x2="17" y2="15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                <line x1="17" y1="9" x2="23" y2="15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            )}
+            {soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
           </button>
           {/* Narration Toggle */}
           <button
-            onClick={toggleNarration}
+            onClick={() => {
+              hapticLight();
+              toggleNarration();
+            }}
             className={`w-9 h-9 flex items-center justify-center rounded-full transition-all ${
               narrationEnabled
                 ? 'bg-secondary/20 text-secondary hover:bg-secondary/30'
@@ -183,27 +174,21 @@ export default function TopBar({ chapter, totalChapters = 10, showStoryButton, o
             aria-label={narrationEnabled ? t('muteNarration') : t('enableNarration')}
             title={narrationEnabled ? t('muteNarration') : t('enableNarration')}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" fill="currentColor" opacity={narrationEnabled ? 0.4 : 0.2} />
-              <path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              {!narrationEnabled && (
-                <line x1="3" y1="3" x2="21" y2="21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              )}
-            </svg>
+            {narrationEnabled ? <Mic size={18} /> : <MicOff size={18} />}
           </button>
         </div>
 
         {/* ─── Mobile: settings gear dropdown ─── */}
         <div className="relative sm:hidden" ref={settingsRef}>
           <button
-            onClick={() => setSettingsOpen(!settingsOpen)}
+            onClick={() => {
+              hapticLight();
+              setSettingsOpen(!settingsOpen);
+            }}
             className="w-10 h-10 flex items-center justify-center rounded-full bg-bg-surface/50 hover:bg-bg-surface text-text-secondary hover:text-text-primary transition-all"
             aria-label={t('settings')}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="3" />
-              <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
-            </svg>
+            <Settings size={18} />
           </button>
 
           <AnimatePresence>
@@ -217,7 +202,10 @@ export default function TopBar({ chapter, totalChapters = 10, showStoryButton, o
               >
                 {/* Sound */}
                 <button
-                  onClick={toggleSound}
+                  onClick={() => {
+                    hapticLight();
+                    toggleSound();
+                  }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-sm text-text-secondary hover:bg-bg-surface/50 transition-colors"
                 >
                   <span className="text-base">{soundEnabled ? '🔊' : '🔇'}</span>
@@ -227,7 +215,10 @@ export default function TopBar({ chapter, totalChapters = 10, showStoryButton, o
 
                 {/* Narration */}
                 <button
-                  onClick={toggleNarration}
+                  onClick={() => {
+                    hapticLight();
+                    toggleNarration();
+                  }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-sm text-text-secondary hover:bg-bg-surface/50 transition-colors border-t border-white/5"
                 >
                   <span className="text-base">{narrationEnabled ? '🎙️' : '🎙️'}</span>

@@ -52,7 +52,7 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-bg-deep relative overflow-hidden flex flex-col items-center justify-center px-4">
+    <div className="min-h-[100dvh] bg-bg-deep relative overflow-hidden flex flex-col items-center justify-center px-4 safe-area-all">
       {/* Language Switcher — safe inset on mobile */}
       <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20">
         <LanguageSwitcher />

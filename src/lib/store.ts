@@ -5,7 +5,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { ChapterProgress, PlayerProfile } from './types';
+import { ChapterProgress, PlayerProfile, ExerciseProgress } from './types';
 import { useEffect, useState } from 'react';
 import { ExecutionResult } from './jamboscript';
 
@@ -43,6 +43,14 @@ export interface GameState {
   incrementAttempts: (slug: string) => void;
   setLastCode: (slug: string, code: string) => void;
   setLastResult: (slug: string, result: ExecutionResult) => void;
+
+  // Exercise progress
+  getExerciseProgress: (slug: string, exerciseId: string) => ExerciseProgress;
+  completeExercise: (slug: string, exerciseId: string, stars: number, code: string) => void;
+  setCurrentExerciseIndex: (slug: string, index: number) => void;
+  getCurrentExerciseIndex: (slug: string) => number;
+  incrementExerciseAttempts: (slug: string, exerciseId: string) => void;
+  setExerciseLastCode: (slug: string, exerciseId: string, code: string) => void;
 
   // Hints
   unlockHint: (chapterSlug: string, hintId: string) => boolean;
@@ -112,6 +120,9 @@ export const useGameStore = create<GameState>()(
           const existing = state.chapters[slug];
           const bestStars = Math.max(existing?.starsEarned || 0, starsEarned);
           const wasAlreadyComplete = existing?.completed || false;
+          const previousBestStars = existing?.starsEarned || 0;
+          // Only add the IMPROVEMENT in stars, not the full amount (fixes replay exploit)
+          const starImprovement = Math.max(0, bestStars - previousBestStars);
 
           return {
             chapters: {
@@ -124,7 +135,7 @@ export const useGameStore = create<GameState>()(
             },
             player: {
               ...state.player,
-              totalStars: state.player.totalStars + starsEarned,
+              totalStars: state.player.totalStars + starImprovement,
               chaptersCompleted: wasAlreadyComplete
                 ? state.player.chaptersCompleted
                 : state.player.chaptersCompleted + 1,
@@ -173,12 +184,104 @@ export const useGameStore = create<GameState>()(
           };
         }),
 
+      // ── Exercise Progress ────────────────────────────────────────
+
+      getExerciseProgress: (slug, exerciseId) => {
+        const chapter = get().chapters[slug];
+        return chapter?.exerciseProgress?.[exerciseId] || {
+          completed: false,
+          starsEarned: 0,
+          attempts: 0,
+          lastCode: '',
+        };
+      },
+
+      completeExercise: (slug, exerciseId, stars, code) =>
+        set((state) => {
+          const existing = state.chapters[slug] || { ...defaultChapterProgress };
+          const existingEx = existing.exerciseProgress?.[exerciseId];
+          const bestStars = Math.max(existingEx?.starsEarned || 0, stars);
+          return {
+            chapters: {
+              ...state.chapters,
+              [slug]: {
+                ...existing,
+                exerciseProgress: {
+                  ...existing.exerciseProgress,
+                  [exerciseId]: {
+                    completed: true,
+                    starsEarned: bestStars,
+                    attempts: (existingEx?.attempts || 0) + 1,
+                    lastCode: code,
+                  },
+                },
+              },
+            },
+          };
+        }),
+
+      setCurrentExerciseIndex: (slug, index) =>
+        set((state) => {
+          const existing = state.chapters[slug] || { ...defaultChapterProgress };
+          return {
+            chapters: {
+              ...state.chapters,
+              [slug]: { ...existing, currentExerciseIndex: index },
+            },
+          };
+        }),
+
+      getCurrentExerciseIndex: (slug) => {
+        return get().chapters[slug]?.currentExerciseIndex || 0;
+      },
+
+      incrementExerciseAttempts: (slug, exerciseId) =>
+        set((state) => {
+          const existing = state.chapters[slug] || { ...defaultChapterProgress };
+          const existingEx = existing.exerciseProgress?.[exerciseId] || {
+            completed: false, starsEarned: 0, attempts: 0, lastCode: '',
+          };
+          return {
+            chapters: {
+              ...state.chapters,
+              [slug]: {
+                ...existing,
+                exerciseProgress: {
+                  ...existing.exerciseProgress,
+                  [exerciseId]: { ...existingEx, attempts: existingEx.attempts + 1 },
+                },
+              },
+            },
+          };
+        }),
+
+      setExerciseLastCode: (slug, exerciseId, code) =>
+        set((state) => {
+          const existing = state.chapters[slug] || { ...defaultChapterProgress };
+          const existingEx = existing.exerciseProgress?.[exerciseId] || {
+            completed: false, starsEarned: 0, attempts: 0, lastCode: '',
+          };
+          return {
+            chapters: {
+              ...state.chapters,
+              [slug]: {
+                ...existing,
+                exerciseProgress: {
+                  ...existing.exerciseProgress,
+                  [exerciseId]: { ...existingEx, lastCode: code },
+                },
+              },
+            },
+          };
+        }),
+
       unlockHint: (chapterSlug, hintId) => {
         const state = get();
         const progress = state.chapters[chapterSlug] || { ...defaultChapterProgress };
 
         if (progress.hintsUsed.includes(hintId)) return true; // Already unlocked
 
+        // Hints are now always free — no star cost
         set({
           chapters: {
             ...state.chapters,
@@ -255,7 +358,21 @@ export const useGameStore = create<GameState>()(
     }),
     {
       name: 'jamboscript-game-state',
-      version: 1,
+      version: 2,
+      migrate: (persistedState: unknown, version: number) => {
+        if (version < 2) {
+          // v1 → v2: add exerciseProgress to existing chapter progress
+          const state = persistedState as Record<string, unknown>;
+          const chapters = (state.chapters || {}) as Record<string, ChapterProgress>;
+          for (const slug of Object.keys(chapters)) {
+            if (!chapters[slug].exerciseProgress) {
+              chapters[slug].exerciseProgress = {};
+              chapters[slug].currentExerciseIndex = 0;
+            }
+          }
+        }
+        return persistedState as GameState;
+      },
     }
   )
 );

@@ -85,7 +85,7 @@ export default function PlaygroundPage() {
   return (
     <div className="h-[100dvh] flex flex-col bg-bg-deep">
       {/* Header */}
-      <header className="flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 bg-bg-card/60 backdrop-blur-md border-b border-white/5">
+      <header className="flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 bg-bg-card/60 backdrop-blur-md border-b border-white/5 safe-area-top">
         <Link
           href="/"
           className="text-text-secondary hover:text-secondary transition-colors text-sm font-semibold flex items-center gap-2"

@@ -12,7 +12,7 @@ export default function ParentPage() {
   return (
     <div className="min-h-screen bg-bg-deep">
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+      <header className="flex items-center justify-between px-6 py-4 border-b border-white/5 safe-area-top">
         <Link
           href="/"
           className="text-text-secondary hover:text-secondary transition-colors text-sm font-semibold"

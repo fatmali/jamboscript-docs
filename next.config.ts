@@ -6,12 +6,13 @@ import createNextIntlPlugin from "next-intl/plugin";
 // Note: 'unsafe-inline' is required for Next.js hydration scripts
 const ContentSecurityPolicy = `
   default-src 'self';
-  script-src 'self' 'unsafe-inline' 'unsafe-eval';
-  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-  font-src 'self' https://fonts.gstatic.com;
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net;
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net;
+  font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net;
   img-src 'self' data: blob:;
   media-src 'self' blob:;
-  connect-src 'self' https://*.cognitiveservices.azure.com https://*.tts.speech.microsoft.com;
+  connect-src 'self' https://cdn.jsdelivr.net https://*.cognitiveservices.azure.com https://*.tts.speech.microsoft.com;
+  worker-src 'self' blob:;
   frame-ancestors 'self';
   base-uri 'self';
   form-action 'self';

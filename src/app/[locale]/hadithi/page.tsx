@@ -15,7 +15,7 @@ function seededRandom(seed: number) {
 
 export default function StoryMapPage() {
   const router = useRouter();
-  const { chapters: progress, player } = useGameStore();
+  const { chapters: progress, player, getExerciseProgress } = useGameStore();
   const hydrated = useStoreHydrated();
   const t = useTranslations('StoryMap');
   const tc = useTranslations('Common');
@@ -69,7 +69,7 @@ export default function StoryMapPage() {
       </div>
 
       {/* Header */}
-      <header className="relative z-10 flex items-center justify-between px-6 py-4">
+      <header className="relative z-10 flex items-center justify-between px-6 py-4 safe-area-top">
         <Link
           href="/"
           className="text-text-secondary hover:text-secondary transition-colors text-sm font-semibold flex items-center gap-2"
@@ -100,7 +100,7 @@ export default function StoryMapPage() {
       </div>
 
       {/* Chapter Map */}
-      <div className="relative z-10 max-w-lg mx-auto px-6 pb-16">
+      <div className="relative z-10 max-w-lg mx-auto px-6 pb-16 safe-area-bottom">
         {/* Path SVG connecting nodes */}
         <svg
           className="absolute left-1/2 top-0 -translate-x-1/2 w-4 h-full pointer-events-none"
@@ -171,6 +171,29 @@ export default function StoryMapPage() {
                               ⭐
                             </span>
                           ))}
+                        </div>
+                      )}
+                      {/* Exercise progress dots */}
+                      {unlocked && chapter.exercises && chapter.exercises.length > 1 && (
+                        <div className="flex gap-1 mt-1.5 items-center">
+                          {chapter.exercises.map((ex, ei) => {
+                            const exDone = !!getExerciseProgress(chapter.slug, ex.id)?.completed;
+                            return (
+                              <div
+                                key={ei}
+                                className={`w-2 h-2 rounded-full transition-colors ${
+                                  exDone
+                                    ? 'bg-success'
+                                    : 'bg-white/15'
+                                }`}
+                              />
+                            );
+                          })}
+                          <span className="text-[10px] text-text-muted ml-1">
+                            {chapter.exercises.filter(
+                              (ex) => !!getExerciseProgress(chapter.slug, ex.id)?.completed
+                            ).length}/{chapter.exercises.length}
+                          </span>
                         </div>
                       )}
                     </div>

@@ -10,6 +10,7 @@ import MzeeByteCharacter from '@/components/characters/MzeeByteCharacter';
 import ShidaCharacter from '@/components/characters/ShidaCharacter';
 import NarrationButton from '@/components/ui/NarrationButton';
 import { speak, stop, preloadVoices } from '@/lib/narration';
+import { ChevronRight, PlayIcon } from 'lucide-react';
 
 /** Hook to get the chapter text translator */
 function useChapterText() {
@@ -195,7 +196,7 @@ function GateScene({ solved }: { solved: boolean }) {
 
       {/* Lock / success indicator */}
       {!solved ? (
-        <motion.g animate={{ scale: [1, 1.04, 1] }} transition={{ duration: 2.5, repeat: Infinity }}
+        <motion.g animate={{ scale: [1, 1.04, 1] }} transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
           style={{ transformOrigin: '140px 95px' }}>
           <rect x="133" y="90" width="14" height="11" rx="2" fill="#FFC107" />
           <path d="M136 90 L136 85 Q140 79 144 85 L144 90" fill="none" stroke="#FFC107" strokeWidth="2" strokeLinecap="round" />
@@ -456,7 +457,7 @@ function WaterfallScene({ solved }: { solved: boolean }) {
           x={solved ? 125 + (i % 3) * 18 : 50 + i * 42} y={solved ? 110 : 118 + (i % 2) * 8}
           fontSize="13" textAnchor="middle"
           animate={solved ? { scale: [1, 1.08, 1] } : {}}
-          transition={solved ? { duration: 1.2, delay: i * 0.15 } : {}}
+          transition={solved ? { duration: 1.2, delay: i * 0.15, ease: "easeInOut" } : {}}
         >
           {fruit}
         </motion.text>
@@ -885,7 +886,7 @@ export default function StoryPanel({ chapter, onDialogueComplete, solved = false
       </div>
 
       {/* Scene Illustration with Character inside */}
-      <div className="relative w-full h-[50vh] shrink-0">
+      <div className="relative w-full aspect-[16/9] max-h-[220px] shrink-0">
         {/* Scene SVG — fills the entire area */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -902,14 +903,14 @@ export default function StoryPanel({ chapter, onDialogueComplete, solved = false
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="absolute bottom-2 left-1/2 -translate-x-1/2 w-24 h-24 sm:w-28 sm:h-28 z-10 drop-shadow-lg"
+          className="absolute bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 w-20 h-20 sm:w-24 sm:h-24 z-10 drop-shadow-lg"
         >
           {renderCharacter()}
         </motion.div>
       </div>
 
       {/* Dialogue Area */}
-      <div className="relative px-4 pb-6 w-full max-w-2xl mx-auto z-10">
+      <div className="relative px-4 py-3 sm:py-4 lg:py-6 pb-6 w-full max-w-2xl lg:max-w-3xl mx-auto z-10">
         <AnimatePresence mode="wait">
           <motion.div
             key={dialogueIdx}
@@ -926,13 +927,13 @@ export default function StoryPanel({ chapter, onDialogueComplete, solved = false
           >
             {/* Speaker Badge — only for characters, not narrator */}
             {currentSpeaker !== 'narrator' && (
-              <div className="absolute -top-3 left-4">
+              <div className="absolute -top-3.5 left-4 z-20 bg-bg-deep rounded-full">
                 <SpeakerBadge speaker={currentSpeaker} />
               </div>
             )}
 
             {/* Narration (TTS) — read this line aloud */}
-            <div className="absolute -top-3 right-4">
+            <div className="absolute -top-3.5 right-4 z-20 bg-bg-deep rounded-full">
               <NarrationButton
                 text={tc(currentDialogue.text)}
                 speaker={currentSpeaker}
@@ -945,7 +946,7 @@ export default function StoryPanel({ chapter, onDialogueComplete, solved = false
             <p className={`text-base sm:text-lg leading-relaxed font-medium ${
               currentSpeaker === 'narrator'
                 ? 'text-text-secondary'
-                : 'mt-2 text-text-primary'
+                : 'text-text-primary'
             }`}>
               {tc(currentDialogue.text)}
             </p>
@@ -994,18 +995,9 @@ export default function StoryPanel({ chapter, onDialogueComplete, solved = false
                       : 'bg-white/10 hover:bg-white/15 text-white border border-white/10'
                   }`}
                 >
+                  {isLastDialogue && <PlayIcon />}
                   <span>{isLastDialogue ? tc('startCoding') : tc('clickToContinue')}</span>
-                  <span className="group-hover:translate-x-1 transition-transform">
-                    {isLastDialogue ? (
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                        <path fillRule="evenodd" d="M2 10a.75.75 0 0 1 .75-.75h12.59l-2.1-1.95a.75.75 0 1 1 1.02-1.1l3.5 3.25a.75.75 0 0 1 0 1.1l-3.5 3.25a.75.75 0 1 1-1.02-1.1l2.1-1.95H2.75A.75.75 0 0 1 2 10Z" clipRule="evenodd" />
-                      </svg>
-                    ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                        <path fillRule="evenodd" d="M2 10a.75.75 0 0 1 .75-.75h12.59l-2.1-1.95a.75.75 0 1 1 1.02-1.1l3.5 3.25a.75.75 0 0 1 0 1.1l-3.5 3.25a.75.75 0 1 1-1.02-1.1l2.1-1.95H2.75A.75.75 0 0 1 2 10Z" clipRule="evenodd" />
-                      </svg>
-                    )}
-                  </span>
+                  {!isLastDialogue && <ChevronRight />}
                 </button>
               </motion.div>
             )}

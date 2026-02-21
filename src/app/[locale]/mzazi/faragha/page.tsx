@@ -12,7 +12,7 @@ export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-bg-deep">
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+      <header className="flex items-center justify-between px-6 py-4 border-b border-white/5 safe-area-top">
         <Link
           href="/mzazi"
           className="text-text-secondary hover:text-secondary transition-colors text-sm font-semibold"
@@ -158,6 +158,16 @@ export default function PrivacyPage() {
               <div className="bg-bg-medium rounded-lg p-4 font-mono text-sm text-accent">
                 localStorage.removeItem(&apos;jamboscript-store&apos;)
               </div>
+            </section>
+
+            {/* Disclaimer */}
+            <section className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-6">
+              <h2 className="text-xl font-bold text-text-primary mb-3 flex items-center gap-2">
+                ⚠️ {t('disclaimerTitle')}
+              </h2>
+              <p className="leading-relaxed text-sm">
+                {t('disclaimerText')}
+              </p>
             </section>
 
             {/* Contact */}

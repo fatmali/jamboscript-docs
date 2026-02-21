@@ -119,7 +119,7 @@ export default async function LocaleLayout({
       />
       {children}
       <footer className="w-full py-3 text-center text-xs text-white/40">
-        Made with ❤️ by Fatma &amp; Claude Code
+        Open Source Made with ❤️ by Fatma &amp; Github Copilot.
       </footer>
     </NextIntlClientProvider>
   );

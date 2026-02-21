@@ -32,7 +32,7 @@ export default function ShidaCharacter({ speaking = false, celebrating = false }
     <motion.div
       className="relative w-full h-full"
       animate={celebrating ? { rotate: [0, 5, -5, 3, -3, 0], scale: [1, 1.06, 0.96, 1.03, 1] } : {}}
-      transition={celebrating ? { duration: 1, ease: 'easeOut' } : {}}
+      transition={celebrating ? { duration: 1, ease: 'easeInOut' } : {}}
     >
       <svg
         viewBox="0 0 120 120"

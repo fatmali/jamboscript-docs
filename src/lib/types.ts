@@ -17,7 +17,53 @@ export interface Dialogue {
 export interface Hint {
   id: string;
   text: string;
+  /** @deprecated — hints are now free. Kept for backwards compat. */
   starCost: number;
+}
+
+// ─── Exercise System ─────────────────────────────────────────────────
+
+/**
+ * Exercise types control scaffolding level and UI behavior:
+ * - observe:    Code pre-filled, just press Run (maximum scaffolding)
+ * - modify:     Working code, change specific values (medium)
+ * - fill-blank: Starter code with ___ blanks to complete (medium-high)
+ * - create:     Write from scratch with minimal starter (low)
+ * - debug:      Broken code, find and fix the bug (low)
+ */
+export type ExerciseType = 'observe' | 'modify' | 'fill-blank' | 'create' | 'debug';
+
+export interface ExerciseConfig {
+  /** Unique exercise ID, e.g. "ch1-ex1" */
+  id: string;
+  /** Exercise number within chapter (1-based) */
+  order: number;
+  /** Exercise type — controls UI scaffolding */
+  type: ExerciseType;
+  /** Starter code shown in editor (i18n key) */
+  starterCode: string;
+  /** Short task description (i18n key) */
+  task: string;
+  /** Riddle / challenge text (i18n key) */
+  riddle: string;
+  /** Progressive hints — always free, escalating specificity */
+  hints: Hint[];
+  /** Code that should be prepended (invisible context) */
+  contextCode?: string;
+  /** Validate the execution result. Return error string or null if correct */
+  validate: (result: ExecutionResult, code: string) => string | null;
+  /** Expected output for display (optional) */
+  expectedOutput?: string;
+  /**
+   * Map of common mistake patterns → specific feedback messages.
+   * Keys are tested as regex against the child's code.
+   * Values are i18n keys or raw feedback strings.
+   */
+  mistakeFeedback?: Record<string, string>;
+  /** Short bridging narrative shown before this exercise (i18n key). Skipped for ex1. */
+  bridgeText?: string;
+  /** Speaker for the bridge text */
+  bridgeSpeaker?: 'kito' | 'mzee_byte' | 'shida' | 'narrator';
 }
 
 export interface PuzzleConfig {
@@ -58,8 +104,10 @@ export interface ChapterData {
   dialogues: Dialogue[];
   /** Outro dialogues shown after solving the puzzle (narrative reward) */
   outroDialogues?: Dialogue[];
-  /** The puzzle / coding challenge */
+  /** The puzzle / coding challenge — LEGACY, kept for migration */
   puzzle: PuzzleConfig;
+  /** Ordered list of exercises. If present, used instead of puzzle. */
+  exercises?: ExerciseConfig[];
   /** Scene / visual theme */
   scene: 'village' | 'forest' | 'bridge' | 'mountain' | 'cave' | 'waterfall' | 'garden' | 'market' | 'library' | 'celebration';
   /** Stars available (1-3) */
@@ -77,6 +125,14 @@ export interface ChapterData {
 }
 
 // ─── Game State ──────────────────────────────────────────────────────
+
+export interface ExerciseProgress {
+  completed: boolean;
+  starsEarned: number;
+  attempts: number;
+  lastCode: string;
+}
+
 export interface ChapterProgress {
   completed: boolean;
   starsEarned: number;
@@ -84,6 +140,10 @@ export interface ChapterProgress {
   hintsUsed: string[];
   lastCode: string;
   lastResult?: ExecutionResult;
+  /** Per-exercise progress — keyed by exercise ID */
+  exerciseProgress?: Record<string, ExerciseProgress>;
+  /** Index of the current exercise the child is on (0-based) */
+  currentExerciseIndex?: number;
 }
 
 export interface PlayerProfile {

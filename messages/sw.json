@@ -106,6 +106,8 @@
     "childrenText": "JamboScript imetengenezwa kwa watoto wa miaka 8–14. Tunajali sana faragha ya watoto. Hatukusanyi habari yoyote ya kibinafsi kutoka kwa watoto. Data pekee iliyohifadhiwa iko kwenye kifaa cha mtoto na iko chini ya udhibiti wa wazazi.",
     "deleteTitle": "Futa Data Yote",
     "deleteText": "Kufuta data yote ya JamboScript kutoka kwenye kifaa chako, fungua developer tools za browser (F12) na run amri hii:",
+    "disclaimerTitle": "Onyo",
+    "disclaimerText": "JamboScript inatolewa \"kama ilivyo\" kwa madhumuni ya kielimu tu. Hatutoi dhamana kuhusu usahihi au ukamilifu wa maudhui. Hatuwajibiki kwa matatizo yanayotokana na matumizi ya jukwaa hili. Wazazi na walezi wanawajibika kusimamia matumizi ya watoto wao kwenye tovuti hii.",
     "contactTitle": "Maswali?",
     "contactText": "Ukiwa na maswali kuhusu faragha, wasiliana nasi kwa",
     "backButton": "Rudi kwa Ukurasa wa Wazazi"
@@ -121,11 +123,11 @@
     "enableNarration": "Soma kwa sauti"
   },
   "Editor": {
-    "run": "▶ Run",
+    "run": "Run",
     "running": "Ina-run...",
     "success": "✅ Imefanya!",
-    "output": "📤 Output",
-    "outputError": "⚠️ Output",
+    "output": "Output",
+    "outputError": "Output",
     "noOutput": "Hakuna output",
     "printToScreen": "Sema kitu",
     "condition": "Chagua (kama)",
@@ -135,6 +137,7 @@
   "Challenge": {
     "hints": "Hints",
     "hintLabel": "Hint {number}",
+    "free": "(bure)",
     "congratulations": "🎉 Hongera! Umefanya!"
   },
   "Celebrations": {
@@ -176,8 +179,8 @@
       "d1": "Hapo zamani za kale, kulikuwa na kijiji kilichoitwa Algoriti. 🏘️ Kilikuwa na mti wa magic 🌳 uliohifadhi hadithi na nyimbo zote za kijiji. Lakini lo! Mdudu mdanganyifu anaitwa Shida anaumiza mti! 😱",
       "d2": "Sasa! Mimi ni Kito kobe! 🐢 Nahitaji msaada WAKO kuokoa mti wetu wa magic! Kwanza — ona mlango hii? Shida ameifunga! 🔒 Tunahitaji kuambia compyuta iseme maneno ya siri kuifungua!",
       "d2b": "Hehehe! 👾 Huwezi kuingia! Nimefunga mlango na kutupa ufunguo! Nyah nyah!",
-      "d3": "Usijali! Najua njia! ✨ Andika \"andika\" — ndivyo unavyoambia compyuta iSEME! Ni kama kusema \"Hey compyuta, sema hii!\" Jaribu:",
-      "d4": "Unaona? andika(\"...\") inafanya compyuta iseme chochote kilicho ndani ya quotes! Weka maneno ya magic na — BOOM! 💥 Lock inavunjika!",
+      "d3": "Usijali! Najua njia! ✨ Chapa neno \"andika\" — ndivyo unavyoambia compyuta iSEME! Ni kama kusema \"Hey compyuta, sema hii!\" Jaribu:",
+      "d4": "Unaona? andika(\"...\") inafanya compyuta iseme chochote kilicho ndani ya alama za kunukuu \"\"! Weka maneno ya magic na — BOOM! 💥 Lock inavunjika!",
       "starterCode": "# Sema maneno ya magic kufungua mlango!\n# Bonyeza tu ▶ Run!\n\nandika(\"Fungua lango!\")\n",
       "task": "Bonyeza ▶ Run kusema maneno ya magic!",
       "riddle": "🚪 Mlango imefungwa! Bonyeza ▶ Run kuambia compyuta iseme maneno ya magic!",
@@ -186,6 +189,37 @@
       "hint3": "andika inamaanisha \"sema\" — inafanya compyuta iseme!",
       "errorGeneric": "Ooops! Kitu kimeenda vibaya — jaribu tena! 🔄",
       "errorNoOutput": "Mlango haikuskii! Bonyeza ▶ Run kusema kitu!",
+      "ex2": {
+        "starterCode": "# Sasa sema maneno YAKO mwenyewe ya magic!\n# Badilisha ujumbe kuwa chochote unachotaka!\n\nandika(\"Fungua lango!\")\n",
+        "task": "Badilisha ujumbe kuwa maneno yako ya magic!",
+        "riddle": "✏️ Kito anasema: \"Sasa fanya compyuta iseme maneno YAKO! Badilisha kilicho ndani ya alama za kunukuu \"\"!\"",
+        "bridge": "Sawa! Umefungua mlango! 🎉 Lakini unaweza kufanya compyuta iseme maneno YAKO? Badilisha kilicho ndani ya alama za kunukuu \"\"!",
+        "hint1": "Badilisha \"Fungua lango!\" kuwa kitu kingine, kama \"Habari!\"",
+        "hint2": "Weka andika(...) lakini weka maneno YAKO kati ya \"\"!",
+        "errorNoAndika": "Unahitaji kutumia andika() kufanya compyuta iseme!",
+        "errorSameMessage": "Mwanzo mzuri! Lakini badilisha ujumbe — andika maneno YAKO!",
+        "errorEmpty": "Usiache tupu! Andika kitu kati ya alama za kunukuu \"\"!"
+      },
+      "ex3": {
+        "starterCode": "# Sema vitu VIWILI! Jaza sehemu tupu:\n\nandika(\"Habari!\")\nandika(\"___\")\n",
+        "task": "Fanya compyuta iseme vitu VIWILI!",
+        "riddle": "📝 Unaweza kufanya compyuta iseme vitu VIWILI? Jaza sehemu tupu kwenye mstari 4!",
+        "bridge": "Umebadilisha ujumbe! 🌟 Sasa jaribu kufanya compyuta iseme vitu VIWILI — kama mazungumzo!",
+        "hint1": "Badilisha ___ na maneno yoyote unayopenda!",
+        "hint2": "Mfano: andika(\"Habari!\") kisha andika(\"Mambo vipi?\")",
+        "errorNeedTwo": "Karibu! Unahitaji mistari MIWILI ya andika inayoprint!"
+      },
+      "ex4": {
+        "starterCode": "# 🐛 Shida amevunja code! Unaweza kurekebisha?\n# Kitu fulani hakipo...\n\nandika(Fungua lango!)\n",
+        "task": "🐛 Shida amevunja code! Tafuta na urekebishe hitilafu!",
+        "riddle": "🐛 Shida amekula kitu kutoka kwenye code! Linganisha na ile Kito alikuonyesha — kitu gani hakipo?",
+        "bridge": "Lo! 🐛 Shida amejiingiza na kula sehemu ya code! Unaweza kuona kitu gani kiko vibaya na kukirekebisha?",
+        "hint1": "Linganisha code hii na ile inayofanya kazi hapo juu — nini tofauti?",
+        "hint2": "Maneno yanahitaji kufungwa ndani ya alama za kunukuu \"hivi\"",
+        "hint3": "Jaribu: andika(\"Fungua lango!\")",
+        "errorNoQuotes": "Karibu! Maneno yanahitaji kuwa ndani ya alama za kunukuu: \"...\"",
+        "hintQuotes": "💡 Maneno yanahitaji kuwa ndani ya alama za kunukuu — kama andika(\"Fungua lango!\")"
+      },
       "outro1": "WUUUUSH! ✨ Mlango imefunguka! Mwanga wa dhahabu kila mahali! Wanakijiji wanatoka wakishangilia — mtu amekuja kuokoa mti! 🎉",
       "outro2": "Umefanya! 🐢 Umeambia compyuta nini iseme — hiyo ni spell yako ya KWANZA ya coding! Lakini Shida ana hila zaidi mbele. Twende! 🏃"
     },
@@ -198,13 +232,45 @@
       "d3": "\"acha\" ni kama kuweka kitu ndani ya box na kuandika label! 📦 Unaweka jina lako ndani, hivi:",
       "d4": "\"acha jina = ...\" inamaanisha \"compyuta, kumbuka jina langu!\" Kisha \"andika(jina)\" inamaanisha \"sema kwa sauti!\" — mzee atasikia na atakuacha upite! 😊",
       "starterCode": "# Mzee anauliza: \"Jina lako nani?\"\n# Weka jina lako kati ya quote marks:\n\nacha jina = \"Jina Lako\"\n\n# Sasa sema kwa sauti:\nandika(jina)\n",
-      "task": "Andika jina lako kati ya quotes!",
+      "task": "Andika jina lako kati ya alama za kunukuu \"\"!",
       "riddle": "🏠 Mzee anauliza: \"Wewe ni nani?\" — Andika jina lako kati ya \" \"!",
       "hint1": "Badilisha \"Jina Lako\" na jina lako halisi!",
       "hint2": "Hivi: acha jina = \"Amani\"",
       "hint3": "Hakikisha umeandika herufi angalau moja ndani ya \"\"",
       "errorGeneric": "Ooops! Kitu kimeenda vibaya — jaribu tena!",
       "errorNoName": "Umesahau jina lako! Andika ndani ya quote marks \"\"!",
+      "ex2": {
+        "starterCode": "# Sasa hifadhi UMRI wako pia!\n# Jaza nambari ya umri wako:\n\nacha umri = ___\nandika(umri)\n",
+        "task": "Hifadhi umri wako kwenye variable na uiprint!",
+        "riddle": "📦 Weka umri wako kwenye box! Badilisha ___ na nambari!",
+        "bridge": "Mzee anajua jina lako sasa! 🎉 Lakini anataka pia kujua umri wako. Hifadhi umri wako kwenye box!",
+        "hint1": "Badilisha ___ na nambari kama 10",
+        "hint2": "Jaribu: acha umri = 10",
+        "errorNoAcha": "Unahitaji kutumia acha kutengeneza variable!",
+        "errorNoUmri": "Weka NAMBARI (kama 10) baada ya umri = !",
+        "errorNoOutput": "Sema umri wako kwa sauti! Ongeza andika(umri) mwishoni!"
+      },
+      "ex3": {
+        "starterCode": "# Tengeneza boxes MBILI na useme zote!\n\n",
+        "task": "Tengeneza variables mbili na uziprint zote!",
+        "riddle": "🚀 Tengeneza boxes MBILI kwa acha na useme zote kwa andika! Peke yako!",
+        "bridge": "Unazidi kuwa hodari! 🌟 Sasa jaribu kutengeneza variables MBILI peke yako!",
+        "hint1": "Anza na: acha rangi = \"bluu\"",
+        "hint2": "Kisha ongeza: acha nambari = 7 na andika(nambari)",
+        "hint3": "Mfano kamili: acha rangi = \"bluu\"\nandika(rangi)\nacha nambari = 7\nandika(nambari)",
+        "errorNeedTwo": "Unahitaji angalau mistari MIWILI ya acha — boxes mbili!",
+        "errorPrintBoth": "Usisahau kuandika zote mbili!"
+      },
+      "ex4": {
+        "starterCode": "# 🐛 Shida ameharibu jina la variable!\n# Mstari wa andika una typo!\n\nacha wanyama = \"simba\"\nandika(wanayama)\n",
+        "task": "🐛 Shida amebadilisha herufi! Tafuta typo!",
+        "riddle": "🐛 Angalia kwa makini mstari 5 — jina linaendana na label ya box?",
+        "bridge": "Shida amerudi tena! 🐛 Amebadilisha herufi moja kwenye code. Unaweza kuiona?",
+        "hint1": "Linganisha jina kwenye mstari 4 na 5 — ni sawa?",
+        "hint2": "Mstari 4 unasema 'wanyama' lakini mstari 5 unasema 'wanayama' — ona tofauti!",
+        "hint3": "Badilisha wanayama kuwa wanyama — 'y' na 'a' zimebadilishwa!",
+        "hintSpelling": "💡 Angalia spelling — jina la variable lazima liwe SAWA kabisa!"
+      },
       "outro1": "Mzee anatabasamu! \"Karibu, mdogo!\" 😊 Sasa kila mtu kijijini anajua jina lako! Unaweza kuendelea kuelekea mti wa magic! 🌳",
       "outro2": "Psst! 👾 Una jina sasa? Na nini? Nimeharibu alama zote msituni! Utapotea SANA! Hehehe!",
       "outro3": "Usimsikilize Shida! 🐢 Kitu kizuri ni — compyuta inakumbuka jina lako sasa! Hiyo inaitwa \"variable\" — ni kama label kwenye box. Muhimu sana! Tuendelee! 📦"
@@ -223,9 +289,39 @@
       "riddle": "🌧️ Mvua inanyesha! Jaza sehemu tupu: ambia wote waende wapi!",
       "hint1": "Badilisha ___ na maneno kama \"Nenda pangoni!\"",
       "hint2": "Jaribu: andika(\"Nenda pangoni!\")",
-      "hint3": "Maneno yoyote yanafanya kazi! Andika tu kitu kati ya quotes!",
+      "hint3": "Maneno yoyote yanafanya kazi! Andika tu kitu kati ya alama za kunukuu \"\"!",
       "errorGeneric": "Ooops! Kitu kimeenda vibaya — jaribu tena! 🔄",
       "errorNoOutput": "Sehemu ya kama haikusema kitu! Jaza sehemu tupu ndani ya andika(\"___\")",
+      "ex2": {
+        "starterCode": "# Nini kama HANYESHI? Ongeza \"la sivyo\" (otherwise)!\n\nkama (hewa ni \"mvua\") {\n  andika(\"Nenda pangoni!\")\n}\n",
+        "task": "Ongeza sehemu ya \"la sivyo\" kwa wakati ambao HANYESHI!",
+        "riddle": "☀️ Tuseme nini kama jua linawaka? Ongeza la sivyo { ... } baada ya }",
+        "bridge": "Umechagua njia sahihi! 🎉 Lakini nini kama hali ya hewa inabadilika? Tupange kwa zote!",
+        "hint1": "Baada ya }, ongeza: la sivyo { andika(\"kitu\") }",
+        "hint2": "la sivyo inamaanisha \"vinginevyo\" — ina-run kama kama ni uongo!",
+        "errorNoKama": "Unahitaji kutumia kama kufanya uchaguzi!",
+        "errorNoElse": "Ongeza la sivyo { ... } kushughulikia hali nyingine!"
+      },
+      "ex3": {
+        "starterCode": "# Andika kama/la sivyo yako kutoka mwanzo!\n# Tengeneza variable na uiangalie!\n\n",
+        "task": "Andika kama/la sivyo yako kutoka mwanzo!",
+        "riddle": "🚀 Tengeneza variable, kisha tumia kama kuiangalia! Ongeza la sivyo pia!",
+        "bridge": "Sasa unajua kama NA la sivyo! 🌟 Unaweza kuandika moja peke yako?",
+        "hint1": "Anza na: acha chakula = \"pilau\"",
+        "hint2": "Kisha: kama (chakula ni \"pilau\") { andika(\"Tamu!\") }",
+        "hint3": "Mfano kamili: acha chakula = \"pilau\"\nkama (chakula ni \"pilau\") {\n  andika(\"Tamu!\")\n} la sivyo {\n  andika(\"Sawa tu\")\n}"
+      },
+      "ex4": {
+        "starterCode": "# 🐛 Shida ameandika check mbaya!\n# Mvua INANYESHA, lakini code inaangalia jua!\n\nkama (hewa ni \"jua\") {\n  andika(\"Nenda pangoni!\")\n}\n",
+        "task": "🐛 Condition iko vibaya! Mvua inanyesha lakini code inaangalia jua!",
+        "riddle": "🐛 Angalia mstari 4 — hali ya hewa ni mvua lakini Shida ameandika jua!",
+        "bridge": "Shida amebadilisha hali ya hewa! 🐛 Code inaonekana sawa lakini condition iko vibaya!",
+        "hint1": "Hali ya hewa halisi ni nini? Ni mvua, si jua!",
+        "hint2": "Badilisha \"jua\" kuwa \"mvua\" kwenye mstari 4",
+        "hint3": "kama (hewa ni \"mvua\") — hiyo ndiyo jibu!",
+        "errorWrongCondition": "Angalia condition yako — hali ya hewa ni mvua, si jua!",
+        "hintWrongWeather": "💡 Hali ya hewa ni mvua — badilisha condition iangalie mvua!"
+      },
       "outro1": "Njia sahihi inaangaza chini ya miguu yako! ✨ Alama za uwongo za Shida zinapotea kama mapovu! Msitu unafunguka na unaona... daraja kubwa la zamani! 🌉",
       "outro2": "Vizuri sana! 🧙 Umefundisha compyuta kuchagua — KAMA kitu ni kweli, FANYA kitu! Werevu sana! Lakini kuna zaidi mbele..."
     },
@@ -248,6 +344,37 @@
       "errorNoOutput": "Hukupiga hatua yoyote! Bonyeza ▶ Run kuvuka!",
       "errorTooMany": "Ee, hatua nyingi mno! 💥 Daraja linavunjika!",
       "errorTooFew": "Karibu umefika! Umesimama katikati! Unahitaji angalau hatua 5!",
+      "ex2": {
+        "starterCode": "# Badilisha loop ipige hatua 3 tu!\n# Hint: badilisha nambari 5\n\nrudia (acha i = 0; i chini 5; i++) {\n  andika(\"Hatua! 🦶\")\n}\n",
+        "task": "Badilisha loop irudie mara 3 tu!",
+        "riddle": "🌉 Mbao 3 tu ni salama! Badilisha nambari upige hatua 3 kamili!",
+        "bridge": "Umevuka daraja! 🎉 Lakini nini kama kulikuwa na mbao 3 tu? Unaweza kubadilisha nambari?",
+        "hint1": "Tafuta nambari 5 na uibadilishe kuwa 3!",
+        "hint2": "i chini 3 inamaanisha \"i chini ya 3\" — loop ina-run mara 3!",
+        "errorNoRudia": "Unahitaji kutumia rudia kutengeneza loop!",
+        "errorNeedThree": "Unahitaji hatua 3 kamili! Badilisha nambari kwenye loop!"
+      },
+      "ex3": {
+        "starterCode": "# Print NAMBARI ya hatua kila wakati!\n# Jaza sehemu tupu:\n\nrudia (acha i = 1; i chini 6; i++) {\n  andika(___)\n}\n",
+        "task": "Print nambari ya hatua kila wakati loop ina-run!",
+        "riddle": "📝 Jaza sehemu tupu ili kila hatua ionyeshe nambari yake: 1, 2, 3...",
+        "bridge": "Sasa tuhesabu hatua! Badala ya kusema kitu sawa kila wakati, print NAMBARI YA HATUA!",
+        "hint1": "Badilisha ___ na variable ya counter!",
+        "hint2": "Variable i inahesabu kutoka 1 hadi 5 — andika tu i!",
+        "hint3": "Jaribu: andika(i) — inaprint nambari kila wakati!",
+        "errorNeedNumbers": "Unahitaji angalau mistari 3 ya output yenye nambari!",
+        "errorNoNumbers": "Output yako inapaswa kuwa na nambari! Tumia variable ya counter i!"
+      },
+      "ex4": {
+        "starterCode": "# Andika loop inayoprint sauti 4 za wanyama!\n\n",
+        "task": "Andika loop kutoka mwanzo inayoprint mara 4!",
+        "riddle": "🚀 Andika loop yako! Tumia rudia kuprint kitu mara 4!",
+        "bridge": "Wewe ni mtaalamu wa loops sasa! 🌟 Unaweza kuandika moja kabisa kutoka mwanzo?",
+        "hint1": "Anza na: rudia (acha i = 0; i chini 4; i++) {",
+        "hint2": "Ndani ya loop: andika(\"Simba anguruma!\")",
+        "hint3": "Mfano kamili: rudia (acha i = 0; i chini 4; i++) {\n  andika(\"Simba anguruma! 🦁\")\n}",
+        "errorNeedFour": "Unahitaji angalau mistari 4 ya output! Angalia nambari ya loop yako!"
+      },
       "outro1": "Umevuka salama! 🎉 Ubao wa mwisho unaanguka mtoni nyuma yako. Mti wa magic uko mlimani tu! 🏔️",
       "outro2": "Vizuri sana! 🧙 Hatua moja kwa moja — hiyo ni nguvu ya loops! 🔄 Kito atakuongoza juu. Bahati nzuri, coder mdogo!",
       "outro3": "AAH! 👾 Umevuka daraja langu?! Sawa! Lakini HUWEZI kurekebisha mti wa magic! ...au unaweza? 😰"
@@ -265,9 +392,40 @@
       "riddle": "⛰️ Mti unahitaji kuponywa! Jaza maneno yako ya magic ndani ya recipe ya spell!",
       "hint1": "Badilisha ___ na maneno ya kuponya kama \"Mti, pona!\"",
       "hint2": "Jaribu: andika(\"Mti, pona sasa!\")",
-      "hint3": "Maneno yoyote yanafanya kazi! Andika tu kitu kati ya quotes!",
+      "hint3": "Maneno yoyote yanafanya kazi! Andika tu kitu kati ya alama za kunukuu \"\"!",
       "errorGeneric": "Ooops! Spell haikufanya kazi — jaribu tena! 🌳",
       "errorNoOutput": "Spell yako ilikuwa kimya! Jaza maneno ndani ya andika(\"___\")",
+      "ex2": {
+        "starterCode": "# Spell inafanya kazi! Sasa iite MARA MBILI!\n# Ongeza ponyaMti() mwingine chini!\n\nkazi ponyaMti() {\n  andika(\"Mti, pona! 🌳\")\n}\n\nponyaMti()\n",
+        "task": "Ita spell ya kuponya mara mbili!",
+        "riddle": "✨ Spell moja haitoshi! Ongeza ponyaMti() mwingine kuponya mti mara mbili!",
+        "bridge": "Spell ilifanya kazi mara moja! 🌟 Lakini mti unahitaji kuponya ZAIDI! Ita spell tena!",
+        "hint1": "Ongeza mstari mwingine chini: ponyaMti()",
+        "hint2": "Unaweza kuita kazi mara nyingi unavyotaka!",
+        "errorNoKazi": "Unahitaji kutumia kazi kutengeneza function!",
+        "errorCallTwice": "Mti unahitaji kuponya MARA MBILI! Ongeza ponyaMti() mwingine!"
+      },
+      "ex3": {
+        "starterCode": "# Andika spell MBILI tofauti!\n\n",
+        "task": "Tengeneza kazi mbili tofauti na uziite zote!",
+        "riddle": "🚀 Tengeneza recipes MBILI za kazi — moja kwa mti, moja kwa maua!",
+        "bridge": "Wewe ni mtengenezaji wa spell wa kweli! 🌟 Unaweza kuandika spell MBILI tofauti kutoka mwanzo?",
+        "hint1": "Kazi ya kwanza: kazi ponyaMti() { andika(\"Mti, pona!\") }",
+        "hint2": "Kazi ya pili: kazi furahaUa() { andika(\"Ua, furahi!\") }",
+        "hint3": "Usisahau KUITA zote: ponyaMti() na furahaUa()",
+        "errorNeedTwo": "Unahitaji angalau kazi MBILI!",
+        "errorCallBoth": "Tengeneza kazi mbili na UZIITE zote!"
+      },
+      "ex4": {
+        "starterCode": "# Kazi ya kusalimu na jina!\n# Jaza sehemu tupu:\n\nkazi salimia(jina) {\n  andika(\"Habari, \" + ___ + \"!\")\n}\n\nsalimia(\"___\")\nsalimia(\"___\")\n",
+        "task": "Jaza sehemu tupu kusalimu watu wawili tofauti!",
+        "riddle": "📝 Fanya salamu ifanye kazi! Jaza jina na majina mawili!",
+        "bridge": "Functions zinaweza kupokea INPUT pia! 🎁 Kama recipe inayofanya kazi na viungo tofauti!",
+        "hint1": "Sehemu tupu ya kwanza iwe: jina (jina la parameter)",
+        "hint2": "Sehemu tupu za mwisho ziwe majina kama \"Kito\" na \"Amani\"",
+        "hint3": "Jibu: andika(\"Habari, \" + jina + \"!\") kisha salimia(\"Kito\") na salimia(\"Amani\")",
+        "errorCallWithNames": "Ita salimia() na majina MAWILI tofauti!"
+      },
       "outro1": "MTI UNAANGAZA! 🌳✨💛 Mwanga wa dhahabu unashuka kupitia matawi! Majani yanaota, maua yanachanua, na hadithi na nyimbo zote zinarudi kijijini! 🌟🌟🌟",
       "outro2": "UMEFANYA! 🐢🎉 Umetengeneza spell YAKO mwenyewe! Ulianza kusema salamu, na sasa wewe ni coder wa kweli! Mti wa magic umeokolewa!",
       "outro3": "Subiri... NINI?! 👾 Umerekebisha KILA KITU?! ...Sawa sawa... labda coding NI nzuri. Je... unaweza kunifundisha pia? Tafadhali? 🥺",
@@ -291,6 +449,35 @@
       "errorGeneric": "Ooops! Sherehe haiko tayari bado! Jaribu tena! 🔄",
       "errorNoOutput": "Hakuna aliyesikia karibisha! Bonyeza ▶ Run!",
       "errorNoKaribu": "Sema \"Karibu\" kwa wageni wako! Hiyo ni neno la magic kwa sherehe!",
+      "ex2": {
+        "starterCode": "# Ongeza kama kuangalia kama mgeni ni maalum!\n\nacha mgeni = \"Kito\"\nandika(\"Karibu \" + mgeni + \"!\")\n\n# Ongeza: kama (mgeni ni \"Kito\") { andika(\"VIP!\") }\n",
+        "task": "Ongeza kama check: kama mgeni ni Kito, sema \"VIP!\"",
+        "riddle": "⭐ Wageni wengine ni VIP! Tumia kama kuangalia ni nani maalum!",
+        "bridge": "Sherehe inaanza! 🎉 Lakini wageni wengine ni VIPs — tuwape karibisha maalum!",
+        "hint1": "Ongeza: kama (mgeni ni \"Kito\") { andika(\"VIP!\") }",
+        "hint2": "Weka block ya kama baada ya mstari wa andika karibisha!",
+        "errorNeedTwo": "Unahitaji angalau mistari 2 ya output — karibisha NA ujumbe wa VIP!"
+      },
+      "ex3": {
+        "starterCode": "# Tumia loop kukaribisha marafiki 3!\n\n",
+        "task": "Andika loop inayoprint ujumbe 3 wa karibisha!",
+        "riddle": "🚀 Tumia rudia kukaribisha marafiki 3 kwenye sherehe!",
+        "bridge": "Tuwakaribisha marafiki ZAIDI! 🎉 Tumia loop ili tusiandike kitu kimoja mara 3!",
+        "hint1": "Anza na: rudia (acha i = 0; i chini 3; i++) {",
+        "hint2": "Ndani: andika(\"Karibu rafiki!\")",
+        "hint3": "Kamili: rudia (acha i = 0; i chini 3; i++) {\n  andika(\"Karibu rafiki \" + i + \"!\")\n}",
+        "errorNeedThree": "Unahitaji angalau ujumbe 3 wa karibisha! Angalia nambari ya loop yako!"
+      },
+      "ex4": {
+        "starterCode": "# Andika kazi ya karibisha na uitumie!\n\n",
+        "task": "Tengeneza kazi ya karibu na uite mara mbili!",
+        "riddle": "🚀 Tengeneza kazi inayoitwa karibu inayoprint karibisha, kisha uite!",
+        "bridge": "Kwa grand finale — tumia KILA KITU ulichojifunza! 🌟 Tengeneza kazi kwa karibisha!",
+        "hint1": "Anza na: kazi karibu() { andika(\"Karibu kwenye sherehe!\") }",
+        "hint2": "Kisha uite: karibu() — ite mara mbili kwa furaha zaidi!",
+        "hint3": "Kamili: kazi karibu() {\n  andika(\"Karibu kwenye sherehe! 🎉\")\n}\nkaribu()\nkaribu()",
+        "errorNeedFunction": "Tengeneza kazi na uite angalau mara mbili!"
+      },
       "outro1": "SHEREHE IME-ON! 🎊🎉 Mwanga unajaa angani! Muziki unacheza! Kila mtu anashangilia akisikia jina lake! Kijiji kizima kinacheza! 💃🕺",
       "outro2": "Hii ni siku BORA zaidi! 🐢 Angalia kila kitu ulichofanya: ulifungua mlango, ulikumbuka majina, ulichagua njia, ulivuka daraja, ulitengeneza spell, na umefanya SHEREHE! Wewe ni coder HODARI sana! 🌟",
       "outro3": "Siwezi kuamini! 👾 Nilianza kama mdudu mbaya aliyevunja kila kitu... na sasa naweza ku-CODE! Asante kwa kunifundisha! Wewe ni rafiki yangu bora! 🥹💚",
@@ -311,7 +498,7 @@
     "sceneMountainCreate": "⛰️ Ponya Mti wa Code!",
     "sceneCelebrationWelcome": "🎉 Karibisha wageni!",
     "sceneCelebrationDone": "🎉 Sherehe imeanza! ✅",
-    "startCoding": "▶ Anza kuandika msimbo!",
+    "startCoding": "Anza ku-code!",
     "clickToContinue": "Bonyeza kuendelea",
     "exampleLabel": "Mfano:"
   }

@@ -5,12 +5,17 @@ import confetti from 'canvas-confetti';
 import { playSound } from '@/lib/sound';
 import { useGameStore } from '@/lib/store';
 import { useTranslations } from 'next-intl';
+import { ArrowRight } from '@/components/ui/icons';
+import { hapticSuccess, hapticHeavy } from '@/lib/haptics';
 
 /**
- * Fires a celebration confetti burst + sound
+ * Fires a celebration confetti burst + sound + haptics
  */
 export function fireCelebration() {
   const { soundEnabled } = useGameStore.getState();
+
+  // Haptic feedback
+  hapticSuccess();
 
   // Confetti burst
   const count = 200;
@@ -88,6 +93,8 @@ export function ChapterCompleteOverlay({
 
   useEffect(() => {
     fireCelebration();
+    // Extra heavy haptic for chapter completion
+    hapticHeavy();
   }, []);
 
   return (
@@ -107,9 +114,10 @@ export function ChapterCompleteOverlay({
           {hasNext && (
             <button
               onClick={onNext}
-              className="glow-button px-8 py-3 text-base"
+              className="glow-button px-8 py-3 text-base flex items-center gap-2 justify-center"
             >
-              {t('nextChapter')}
+              {t('nextChapter').replace(' →', '')}
+              <ArrowRight size={18} />
             </button>
           )}
           <button

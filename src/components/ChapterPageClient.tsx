@@ -1,13 +1,14 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getChapterBySlug, chapters } from '@/data/chapters';
 import { useGameStore, useStoreHydrated } from '@/lib/store';
 import { execute } from '@/lib/jamboscript';
 import { playSound } from '@/lib/sound';
 import { startMusic, stopMusic, changeScene } from '@/lib/music';
+import { hapticSuccess, hapticError } from '@/lib/haptics';
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/navigation';
 import { useReducedMotion } from '@/lib/useReducedMotion';
@@ -15,7 +16,9 @@ import TopBar from '@/components/ui/TopBar';
 import StoryPanel from '@/components/ui/StoryPanel';
 import ChallengePanel from '@/components/ui/ChallengePanel';
 import { ChapterCompleteOverlay } from '@/components/ui/Celebrations';
+import type { ExerciseConfig } from '@/lib/types';
 import dynamic from 'next/dynamic';
+import { ArrowRight, CloseIcon } from '@/components/ui/icons';
 
 // Dynamic import Monaco editor to avoid SSR issues
 const CodeEditorPanel = dynamic(() => import('@/components/ui/CodeEditorPanel'), {
@@ -26,6 +29,48 @@ const CodeEditorPanel = dynamic(() => import('@/components/ui/CodeEditorPanel'),
     </div>
   ),
 });
+
+/**
+ * Bridge text banner shown between exercises.
+ * The character says something encouraging before the next challenge.
+ */
+function BridgeBanner({ text, speaker, onContinue }: {
+  text: string;
+  speaker?: string;
+  onContinue: () => void;
+}) {
+  const speakerEmoji: Record<string, string> = {
+    kito: '🐢',
+    mzee_byte: '🧙',
+    shida: '🐛',
+    narrator: '📖',
+  };
+  return (
+    <motion.div
+      className="absolute inset-0 z-30 flex items-center justify-center bg-bg-deep/90 backdrop-blur-sm"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <motion.div
+        className="bg-bg-card border border-white/10 rounded-2xl p-6 max-w-md mx-4 text-center shadow-xl"
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        transition={{ type: 'spring', damping: 20 }}
+      >
+        <div className="text-3xl mb-3">{speakerEmoji[speaker || 'narrator'] || '📖'}</div>
+        <p className="text-text-primary text-base leading-relaxed mb-5">{text}</p>
+        <button
+          onClick={onContinue}
+          className="glow-button px-6 py-2.5 text-sm font-semibold flex items-center gap-2"
+        >
+          Endelea
+          <ArrowRight size={16} />
+        </button>
+      </motion.div>
+    </motion.div>
+  );
+}
 
 export default function ChapterPageClient() {
   const params = useParams();
@@ -46,24 +91,60 @@ export default function ChapterPageClient() {
     resetDialogue,
     setStoryVariable,
     setShowingOutro,
+    // Exercise methods
+    getExerciseProgress,
+    completeExercise,
+    setCurrentExerciseIndex,
+    getCurrentExerciseIndex,
+    incrementExerciseAttempts,
+    setExerciseLastCode,
   } = useGameStore();
   
   // Use server-safe default until hydrated
   const soundEnabled = hydrated ? storeSoundEnabled : true;
 
+  // ─── Exercise system ────────────────────────────────────────────
+  // Get exercises array (fallback: wrap legacy puzzle as single exercise)
+  const exercises: ExerciseConfig[] = useMemo(() => {
+    if (!chapter) return [];
+    if (chapter.exercises && chapter.exercises.length > 0) return chapter.exercises;
+    // Legacy fallback: wrap the single puzzle as an exercise
+    const p = chapter.puzzle;
+    return [{
+      id: p.id,
+      order: 1,
+      type: 'fill-blank' as const,
+      starterCode: p.starterCode,
+      task: p.task,
+      riddle: p.riddle,
+      hints: p.hints,
+      contextCode: p.contextCode,
+      validate: p.validate,
+      expectedOutput: p.expectedOutput,
+    }];
+  }, [chapter]);
+
+  const [exerciseIndex, setExerciseIndex] = useState(0);
+  const currentExercise = exercises[exerciseIndex] || exercises[0];
+
   const [code, setCode] = useState('');
   const [output, setOutput] = useState<string[]>([]);
   const [error, setError] = useState<string | undefined>();
+  const [errorLine, setErrorLine] = useState<number | undefined>();
   const [isRunning, setIsRunning] = useState(false);
-  const [solved, setSolved] = useState(false);
+  const [exerciseSolved, setExerciseSolved] = useState(false);
+  const [allExercisesDone, setAllExercisesDone] = useState(false);
   const [showComplete, setShowComplete] = useState(false);
+  const [showBridge, setShowBridge] = useState(false);
   const [shaking, setShaking] = useState(false);
   const [dialogueComplete, setDialogueComplete] = useState(false);
   const [mobileStoryOpen, setMobileStoryOpen] = useState(false);
   const reduced = useReducedMotion();
 
-  // Editor is visible once dialogue ends OR puzzle is already solved
-  const editorReady = dialogueComplete || solved;
+  const isLastExercise = exerciseIndex >= exercises.length - 1;
+
+  // Editor is visible once dialogue ends OR chapter is already completed
+  const editorReady = dialogueComplete || allExercisesDone;
 
   // Initialize — reset dialogue so story replays from the beginning
   useEffect(() => {
@@ -74,8 +155,20 @@ export default function ChapterPageClient() {
     setShowingOutro(slug, false);
     setDialogueComplete(false);
     const progress = getChapterProgress(slug);
-    setCode(progress.lastCode || tc(chapter.puzzle.starterCode));
-    setSolved(progress.completed);
+    const savedIndex = getCurrentExerciseIndex(slug);
+    const exs = chapter.exercises && chapter.exercises.length > 0
+      ? chapter.exercises
+      : [chapter.puzzle];
+    const startEx = exs[savedIndex] || exs[0];
+    const exProgress = chapter.exercises
+      ? getExerciseProgress(slug, (startEx as ExerciseConfig).id || chapter.puzzle.id)
+      : undefined;
+    
+    setExerciseIndex(savedIndex);
+    setCode(exProgress?.lastCode || tc((startEx as ExerciseConfig).starterCode || chapter.puzzle.starterCode));
+    setAllExercisesDone(progress.completed);
+    setExerciseSolved(false);
+    setShowBridge(false);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug, hydrated]);
@@ -94,67 +187,120 @@ export default function ChapterPageClient() {
 
   // Change music scene when chapter is solved (celebration feel)
   useEffect(() => {
-    if (solved && soundEnabled) {
+    if (allExercisesDone && soundEnabled) {
       changeScene('celebration');
     }
-  }, [solved, soundEnabled]);
+  }, [allExercisesDone, soundEnabled]);
+
+  // ─── Check mistake feedback patterns ────────────────────────────
+  const getMistakeFeedback = useCallback((exercise: ExerciseConfig, userCode: string): string | undefined => {
+    if (!exercise.mistakeFeedback) return undefined;
+    for (const [pattern, feedback] of Object.entries(exercise.mistakeFeedback)) {
+      try {
+        if (new RegExp(pattern).test(userCode)) {
+          return feedback.includes('.') ? tc(feedback) : feedback;
+        }
+      } catch { /* skip invalid regex */ }
+    }
+    return undefined;
+  }, [tc]);
 
   // Handle code run
   const handleRun = useCallback(() => {
-    if (!chapter || isRunning || solved) return;
+    if (!chapter || isRunning || exerciseSolved) return;
 
     setIsRunning(true);
     setOutput([]);
     setError(undefined);
+    setErrorLine(undefined);
 
     if (soundEnabled) playSound('run');
 
     // Small delay for UX feel
     setTimeout(() => {
-      const result = execute(code, chapter.puzzle.contextCode);
+      const contextCode = currentExercise.contextCode || chapter.puzzle.contextCode;
+      const result = execute(code, contextCode);
       setOutput(result.output);
+      if (result.errorLine) setErrorLine(result.errorLine);
 
       incrementAttempts(slug);
       setLastCode(slug, code);
+      incrementExerciseAttempts(slug, currentExercise.id);
+      setExerciseLastCode(slug, currentExercise.id, code);
 
       // Validate
-      const validationError = chapter.puzzle.validate(result, code);
+      const validationError = currentExercise.validate(result, code);
 
       if (validationError) {
-        // Resolve translation key if it looks like one (contains a dot), otherwise show raw error
-        const resolvedError = validationError.includes('.') ? tc(validationError) : validationError;
+        // Check for common mistake patterns first
+        const mistakeHint = getMistakeFeedback(currentExercise, code);
+        const resolvedError = mistakeHint
+          || (validationError.includes('.') ? tc(validationError) : validationError);
         setError(resolvedError);
         setIsRunning(false);
         setShaking(true);
         if (soundEnabled) playSound('error');
+        hapticError();
         setTimeout(() => setShaking(false), 500);
       } else {
-        // Success!
-        setSolved(true);
+        // Exercise solved!
+        setExerciseSolved(true);
         setIsRunning(false);
 
         if (soundEnabled) playSound('success');
+        hapticSuccess();
 
         // Save cross-chapter story variables
         if (result.variables['jina'] && typeof result.variables['jina'] === 'string') {
           setStoryVariable('jina', result.variables['jina']);
         }
 
-        // Calculate stars (3 = first try, 2 = under 5 tries, 1 = more)
-        const progress = getChapterProgress(slug);
-        const attempts = progress.attempts + 1;
-        const hintsUsed = progress.hintsUsed.length;
+        // Calculate stars for this exercise
+        const exProgress = getExerciseProgress(slug, currentExercise.id);
+        const attempts = (exProgress?.attempts || 0) + 1;
         let stars = 3;
-        if (attempts > 3 || hintsUsed > 0) stars = 2;
-        if (attempts > 5 || hintsUsed > 1) stars = 1;
+        if (attempts > 3) stars = 2;
+        if (attempts > 5) stars = 1;
 
-        completeChapter(slug, stars);
+        completeExercise(slug, currentExercise.id, stars, code);
 
-        // Show completion overlay after a beat
-        setTimeout(() => setShowComplete(true), 1500);
+        if (isLastExercise) {
+          // All exercises done — calculate overall chapter stars
+          const chProgress = getChapterProgress(slug);
+          const totalExStars = Object.values(chProgress.exerciseProgress || {})
+            .reduce((sum, ep) => sum + ep.starsEarned, 0) + stars;
+          const avgStars = Math.max(1, Math.round(totalExStars / exercises.length));
+          completeChapter(slug, avgStars);
+          setAllExercisesDone(true);
+          setTimeout(() => setShowComplete(true), 1500);
+        } else {
+          // Show bridge text before next exercise (after a beat)
+          setTimeout(() => setShowBridge(true), 1200);
+        }
       }
     }, 400);
-  }, [chapter, code, isRunning, solved, slug, soundEnabled, getChapterProgress, incrementAttempts, setLastCode, completeChapter, setStoryVariable, tc]);
+  }, [chapter, code, currentExercise, isRunning, exerciseSolved, slug, soundEnabled, isLastExercise,
+      exercises.length, getChapterProgress, getExerciseProgress, incrementAttempts, setLastCode,
+      incrementExerciseAttempts, setExerciseLastCode, completeExercise, completeChapter,
+      setStoryVariable, getMistakeFeedback, tc]);
+
+  // ─── Advance to next exercise ───────────────────────────────────
+  const advanceExercise = useCallback(() => {
+    if (!chapter) return;
+    const nextIdx = exerciseIndex + 1;
+    if (nextIdx >= exercises.length) return;
+
+    const nextEx = exercises[nextIdx];
+    setExerciseIndex(nextIdx);
+    setCurrentExerciseIndex(slug, nextIdx);
+    setExerciseSolved(false);
+    setShowBridge(false);
+    setOutput([]);
+    setError(undefined);
+    setErrorLine(undefined);
+    const exProgress = getExerciseProgress(slug, nextEx.id);
+    setCode(exProgress?.lastCode || tc(nextEx.starterCode));
+  }, [chapter, exerciseIndex, exercises, slug, getExerciseProgress, setCurrentExerciseIndex, tc]);
 
   const handleNext = () => {
     if (chapter?.nextChapter) {
@@ -167,13 +313,19 @@ export default function ChapterPageClient() {
 
   const handleReplay = () => {
     if (!chapter) return;
-    setSolved(false);
+    setExerciseIndex(0);
+    setCurrentExerciseIndex(slug, 0);
+    setExerciseSolved(false);
+    setAllExercisesDone(false);
     setShowComplete(false);
+    setShowBridge(false);
     setShowingOutro(slug, false);
     setDialogueComplete(false);
-    setCode(tc(chapter.puzzle.starterCode));
+    const firstEx = exercises[0];
+    setCode(tc(firstEx.starterCode));
     setOutput([]);
     setError(undefined);
+    setErrorLine(undefined);
     resetDialogue(slug);
   };
 
@@ -224,7 +376,7 @@ export default function ChapterPageClient() {
             onDialogueComplete={() => {
               setDialogueComplete(true);
             }}
-            solved={solved}
+            solved={allExercisesDone}
           />
         </motion.div>
 
@@ -259,9 +411,7 @@ export default function ChapterPageClient() {
                     onClick={() => setMobileStoryOpen(false)}
                     className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-text-secondary hover:text-text-primary transition-colors"
                   >
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <path d="M1 1L13 13M13 1L1 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                    </svg>
+                    <CloseIcon size={16} />
                   </button>
                 </div>
                 {/* Story content */}
@@ -272,7 +422,7 @@ export default function ChapterPageClient() {
                       setDialogueComplete(true);
                       setMobileStoryOpen(false);
                     }}
-                    solved={solved}
+                    solved={allExercisesDone}
                   />
                 </div>
               </motion.div>
@@ -292,22 +442,50 @@ export default function ChapterPageClient() {
               exit={{ x: 60, opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.5, ease: 'easeOut' }}
             >
+              {/* Mobile: Challenge Panel on top of editor */}
+              <div className="lg:hidden">
+                <ChallengePanel
+                  riddle={tc(currentExercise.riddle)}
+                  hints={currentExercise.hints.map(h => ({ ...h, text: tc(h.text) }))}
+                  chapterSlug={slug}
+                  error={error}
+                  solved={exerciseSolved}
+                  exerciseIndex={exerciseIndex}
+                  exerciseCount={exercises.length}
+                  exerciseType={currentExercise.type}
+                />
+              </div>
+
               <CodeEditorPanel
                 value={code}
                 onChange={setCode}
                 onRun={handleRun}
                 output={output}
                 error={error}
+                errorLine={errorLine}
                 isRunning={isRunning}
-                solved={solved}
+                solved={exerciseSolved}
               />
+
+              {/* Bridge text overlay between exercises */}
+              <AnimatePresence>
+                {showBridge && currentExercise && !isLastExercise && (
+                  <BridgeBanner
+                    text={exercises[exerciseIndex + 1]?.bridgeText
+                      ? tc(exercises[exerciseIndex + 1].bridgeText!)
+                      : '✨'}
+                    speaker={exercises[exerciseIndex + 1]?.bridgeSpeaker}
+                    onContinue={advanceExercise}
+                  />
+                )}
+              </AnimatePresence>
             </motion.div>
           )}
         </AnimatePresence>
 
       </div>
 
-      {/* Bottom: Challenge Panel — only visible when coding */}
+      {/* Bottom: Challenge Panel — only visible on desktop when coding */}
       <AnimatePresence>
         {editorReady && (
           <motion.div
@@ -315,14 +493,17 @@ export default function ChapterPageClient() {
             animate={reduced ? {} : { y: 0, opacity: 1 }}
             exit={reduced ? {} : { y: 40, opacity: 0 }}
             transition={reduced ? {} : { duration: 0.4, delay: 0.2 }}
-            className="safe-bottom"
+            className="safe-bottom hidden lg:block"
           >
             <ChallengePanel
-              riddle={tc(chapter.puzzle.riddle)}
-              hints={chapter.puzzle.hints.map(h => ({ ...h, text: tc(h.text) }))}
+              riddle={tc(currentExercise.riddle)}
+              hints={currentExercise.hints.map(h => ({ ...h, text: tc(h.text) }))}
               chapterSlug={slug}
               error={error}
-              solved={solved}
+              solved={exerciseSolved}
+              exerciseIndex={exerciseIndex}
+              exerciseCount={exercises.length}
+              exerciseType={currentExercise.type}
             />
           </motion.div>
         )}
